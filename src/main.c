@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
                           prompt_output,
                           MAX_CHAT_BUFF_CONTEXT) == ERR_UNRECOVERABLE) {
     fprintf(stderr,
-            "Could not get a response from the OpenAI Completions API.");
+            "Could not get a response from the OpenAI Completions API\n");
     return ERR_UNRECOVERABLE;
   }
 
