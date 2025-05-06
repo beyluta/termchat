@@ -33,6 +33,16 @@ After this is done, run the binary like this:
 ./termchat "Who created the C programming language?"
 ```
 
+You will get a response looking like this:
+
+```bash
++-----------------------------------------------------------------------------------------+
+|gpt-4.1                                                                                  |
++-----------------------------------------------------------------------------------------+
+|The C programming language was created by Dennis Ritchie at Bell Labs in the early 1970s.|
++-----------------------------------------------------------------------------------------+
+```
+
 ## Development
 
 Simply clone or fork the project then run the following
