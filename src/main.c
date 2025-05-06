@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
   }
 
   char config[MAX_BUFF_SIZE];
-  if (get_rc_contents(filepath, config) == ERR_UNRECOVERABLE) {
+  if (get_rc_contents(filepath, config, sizeof(config)) == ERR_UNRECOVERABLE) {
     fprintf(stderr, "Failed to get config file contents\n");
     return ERR_UNRECOVERABLE;
   }
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
   char prompt_output[MAX_CHAT_BUFF_CONTEXT];
   if (get_prompt_response(api_key, model, role, instruction, argv[1],
                           prompt_output,
-                          MAX_CHAT_BUFF_CONTEXT) == ERR_UNRECOVERABLE) {
+                          sizeof(prompt_output)) == ERR_UNRECOVERABLE) {
     fprintf(stderr,
             "Could not get a response from the OpenAI Completions API\n");
     return ERR_UNRECOVERABLE;

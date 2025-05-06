@@ -23,7 +23,8 @@ const int get_rc_exists() {
   return access(filepath, F_OK) != 0;
 }
 
-const int get_rc_contents(const char *filename, char buffer[]) {
+const int get_rc_contents(const char *filename, char buffer[],
+                          unsigned long bufferLength) {
   FILE *file = fopen(filename, "rb");
   if (file == NULL) {
     fprintf(stderr, "Failed to open file for reading\n");
@@ -49,10 +50,16 @@ const int get_rc_contents(const char *filename, char buffer[]) {
     return ERR_UNRECOVERABLE;
   }
 
-  if (fread(buffer, 1, length, file) <= 0) {
+  const unsigned long fileLength = fread(buffer, 1, length, file);
+  if (fileLength <= 0) {
     fclose(file);
-    free(buffer);
     fprintf(stderr, "Failed to read contents into memory\n");
+    return ERR_UNRECOVERABLE;
+  }
+
+  if (fileLength > bufferLength) {
+    fclose(file);
+    fprintf(stderr, "Buffer is too small to hold file contents\n");
     return ERR_UNRECOVERABLE;
   }
 
