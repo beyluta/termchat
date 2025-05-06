@@ -3,16 +3,6 @@
 #define COMPLETIONS_H
 
 /**
- * @brief Writes the response string to the output string
- * @param ptr pointer to the string
- * @param size size of the string
- * @param nmemb size of the memory in bytes
- * @param output buffer to be written to
- * @return Total size of the buffer
- */
-static int write_func(void *ptr, int size, int nmemb, char output[]);
-
-/**
  * @brief Gets a specific value from a JSON object
  * @param input JSON string
  * @param key key of the desired value

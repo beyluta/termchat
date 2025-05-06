@@ -10,7 +10,7 @@ static const int get_token_index(void *tokens, const char input[],
   const int len = token_array[index].end - token_array[index].start;
   strncpy(output, &input[token_array[index].start], len);
   output[len] = '\0';
-  return ERR_RECOVERABLE;
+  return len;
 }
 
 const int get_json_value(const char input[], const char key[], char output[]) {
@@ -28,10 +28,9 @@ const int get_json_value(const char input[], const char key[], char output[]) {
     get_token_index(tokens, input, i, token);
 
     if (strcmp(token, key) == 0) {
-      get_token_index(tokens, input, i + 1, output);
-      return ERR_RECOVERABLE;
+      return get_token_index(tokens, input, i + 1, output);
     }
   }
 
-  return ERR_UNRECOVERABLE;
+  return 0;
 }

@@ -31,25 +31,26 @@ int main(int argc, char **argv) {
   }
 
   char api_key[MAX_BUFF_SIZE];
-  if (get_json_value(config, "openai", api_key) == ERR_UNRECOVERABLE) {
+  if (get_json_value(config, "openai", api_key) <= 0) {
     fprintf(stderr, "Failed to get the api key from the config file\n");
     return ERR_UNRECOVERABLE;
   }
 
   char model[MAX_BUFF_SIZE];
-  if (get_json_value(config, "model", model) == ERR_UNRECOVERABLE) {
+  const int model_size = get_json_value(config, "model", model);
+  if (model_size <= 0) {
     fprintf(stderr, "Failed to get gpt model from config file\n");
     return ERR_UNRECOVERABLE;
   }
 
   char role[MAX_BUFF_SIZE];
-  if (get_json_value(config, "role", role) == ERR_UNRECOVERABLE) {
+  if (get_json_value(config, "role", role) <= 0) {
     fprintf(stderr, "Failed to get role from config file\n");
     return ERR_UNRECOVERABLE;
   }
 
   char instruction[MAX_BUFF_SIZE];
-  if (get_json_value(config, "instruction", instruction) == ERR_UNRECOVERABLE) {
+  if (get_json_value(config, "instruction", instruction) <= 0) {
     fprintf(stderr, "Failed to get instruction from config file\n");
     return ERR_UNRECOVERABLE;
   }
@@ -64,7 +65,8 @@ int main(int argc, char **argv) {
   }
 
   char content[MAX_CHAT_BUFF_CONTEXT];
-  if (get_json_value(prompt_output, "content", content) == ERR_UNRECOVERABLE) {
+  const int content_size = get_json_value(prompt_output, "content", content);
+  if (content_size <= 0) {
     fprintf(stderr,
             "Could not parse JSON response into a readable format. Attempted "
             "to parse %s\n",
@@ -72,7 +74,8 @@ int main(int argc, char **argv) {
     return ERR_UNRECOVERABLE;
   }
 
-  const Window window = calc_input_window_dimensions(content);
+  const Window window =
+      calc_input_window_dimensions(content, content_size, model, model_size);
   if (draw_chat_window(window) == ERR_UNRECOVERABLE) {
     fprintf(stderr, "Could not draw the content to the terminal window.\n");
     return ERR_UNRECOVERABLE;
