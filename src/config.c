@@ -4,19 +4,27 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define RC_FILENAME "termchatrc.json"
+
 const int get_rc_path(char output[], const int len) {
+  const char *config_dir = getenv("XDG_CONFIG_HOME");
+  if (config_dir != NULL) {
+    snprintf(output, len, "%s/%s", config_dir, RC_FILENAME);
+    return ERR_RECOVERABLE;
+  }
+
   const char *home_dir = getenv("HOME");
   if (home_dir == NULL) {
     fprintf(stderr, "Could not find home directory\n");
     return ERR_UNRECOVERABLE;
   }
-  snprintf(output, len, "%s/.config/termchatrc.json", home_dir);
+  snprintf(output, len, "%s/.config/%s", home_dir, RC_FILENAME);
   return ERR_RECOVERABLE;
 }
 
 const int get_rc_exists() {
   char filepath[MAX_BUFF_SIZE];
-  if (get_rc_path(filepath, MAX_BUFF_SIZE) == ERR_UNRECOVERABLE) {
+  if (get_rc_path(filepath, sizeof(filepath)) == ERR_UNRECOVERABLE) {
     fprintf(stderr, "Could not find file\n");
     return FILE_NOT_EXISTS;
   }
