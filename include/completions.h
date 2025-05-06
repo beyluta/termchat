@@ -25,7 +25,7 @@ const int get_json_value(const char input[], const char key[], char output[]);
  */
 const int get_prompt_response(const char api_key[], const char model[],
                               const char role[], const char instruction[],
-                              const char input[], char *output,
+                              const char input[], char output[],
                               const int outputSize);
 
 #endif
