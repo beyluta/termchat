@@ -26,17 +26,21 @@ static const int get_terminal_window_size() {
 
 static const int draw_text_window(const int width, const int height,
                                   const char text[]) {
-  const int window_size = get_terminal_window_size();
+  const int window_size = get_terminal_window_size() - 2;
   for (int j = 0, k = 0; j < height; j++) {
     printf("\n");
     for (int i = 0; i <= window_size; i++) {
       if (i != 0 && i != window_size) {
-        if (k < width)
+        if (k < width) {
           printf("%c", text[k++]);
-        else
+        } else {
           printf(" ");
-      } else if (i == 0 || i == window_size)
-        printf("|");
+        }
+      } else if (i <= 0) {
+        printf("| ");
+      } else if (i >= window_size) {
+        printf(" |");
+      }
     }
   }
   return ERR_RECOVERABLE;
