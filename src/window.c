@@ -4,11 +4,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-static const int clear_chat_window() {
-  printf("\e[1;1H\e[2J");
-  return ERR_RECOVERABLE;
-}
-
 static const int draw_top_bottom_border_window(const int width) {
   for (int i = 0; i <= width; i++)
     printf("%c", i <= 0 || i >= width ? '+' : '-');
@@ -43,6 +38,11 @@ static const int draw_text_window(const int width, const int height,
       }
     }
   }
+  return ERR_RECOVERABLE;
+}
+
+const int clear_chat_window() {
+  printf("\e[1;1H\e[2J");
   return ERR_RECOVERABLE;
 }
 

@@ -14,6 +14,12 @@ struct Window {
 } typedef Window;
 
 /**
+ * @brief Clears the terminal window.
+ * @return An integer status code indicating success or failure.
+ */
+const int clear_chat_window();
+
+/**
  * @brief Draws the inner chat window along with context
  * @param window Properties of the window to draw
  * @return Whether the function was successful
