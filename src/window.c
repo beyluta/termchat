@@ -48,6 +48,7 @@ static const int draw_text_window(const int width, const int height,
 
 const int draw_chat_window(const Window window) {
   const int window_size = get_terminal_window_size();
+  clear_chat_window();
   draw_top_bottom_border_window(window_size);
   draw_text_window(window.title_size, 1, window.title);
   printf("\n");
