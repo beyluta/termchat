@@ -110,19 +110,18 @@ int main(const int argc, const char **argv) {
   get_parameters(argc, argv, &interactive_mode, &help_mode);
 
   if (help_mode == TRUE) {
-    const char help_table[] =
-        "+----------------+-----------------------+------"
-        "--------------------------+\n"
-        "| Short-form     | Long-form            | "
-        "Purpose                         |\n"
-        "+----------------+------------------------+------"
-        "-------------------------+\n"
-        "| -i             | --interactive        | "
-        "Enters interactive mode         |\n"
-        "| -h             | --help               | Shows "
-        "a table with all commands |\n"
-        "+----------------+------------------------+------"
-        "-------------------------+\n";
+    const char help_table[] = "+----------------+----------------------+-------"
+                              "--------------------------+\n"
+                              "| Short-form     | Long-form            | "
+                              "Purpose                         |\n"
+                              "+----------------+----------------------+------"
+                              "---------------------------+\n"
+                              "| -i             | --interactive        | "
+                              "Enters interactive mode         |\n"
+                              "| -h             | --help               | Shows "
+                              "a table with all commands |\n"
+                              "+----------------+----------------------+------"
+                              "---------------------------+\n";
     printf("%s", help_table);
     return ERR_RECOVERABLE;
   }

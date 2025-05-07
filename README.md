@@ -4,7 +4,7 @@ Integrated A.I Chatbot inside the terminal. Programmed entirely in C.
 
 ## Prerequisites
 
-Make sure these are installed for the project to run:
+Make sure to have the following at hand:
 
 - Linux environment
 - OpenAI API-key
@@ -42,6 +42,15 @@ You will get a response looking like this:
 | The C programming language was created by Dennis Ritchie at Bell Labs in the early 1970s. |
 +-------------------------------------------------------------------------------------------+
 ```
+
+## Flags
+
+The following flags can be used when starting the program.
+
+| Short-form | Long-form     | Purpose                                  |
+| ---------- | ------------- | ---------------------------------------- |
+| -i         | --interactive | Starts the program in interactive mode   |
+| -h         | --help        | Shows a table with all flags and options |
 
 ## Development
 
