@@ -43,10 +43,6 @@ static const int draw_text_window(const int width, const int height,
 }
 
 const int draw_chat_window(const Window window) {
-  if (window.width <= 4 || window.height <= 0 ||
-      clear_chat_window() == ERR_UNRECOVERABLE)
-    return ERR_UNRECOVERABLE;
-
   const int window_size = get_terminal_window_size();
   draw_top_bottom_border_window(window_size);
   draw_text_window(window.title_size, 1, window.title);
