@@ -3,6 +3,14 @@
 #define COMPLETIONS_H
 
 /**
+ * @brief Adds context based on the provided input.
+ * @param input The input string to process.
+ * @param is_user A boolean indicating if the context is user-specific.
+ * @return A static constant integer representing the result of the operation.
+ */
+const int add_context(const char input[], unsigned char is_user);
+
+/**
  * @brief Gets a specific value from a JSON object
  * @param input JSON string
  * @param key key of the desired value
@@ -25,7 +33,6 @@ const int get_json_value(const char input[], const char key[], char output[]);
  */
 const int get_prompt_response(const char api_key[], const char model[],
                               const char role[], const char instruction[],
-                              const char input[], char output[],
-                              const int outputSize);
+                              const char input[], char output[]);
 
 #endif

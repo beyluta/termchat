@@ -3,8 +3,7 @@
 
 #define ERR_UNRECOVERABLE 1
 #define ERR_RECOVERABLE 0
-#define MAX_CHAT_BUFF_CONTEXT 65536
-#define MAX_BUFF_SIZE 4096
+#define MAX_BUFF_SIZE 65536
 #define BOOLEAN unsigned char
 #define TRUE 1
 #define FALSE 0

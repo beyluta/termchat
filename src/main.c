@@ -73,23 +73,28 @@ const static int event_loop(const int argc, const char **argv,
       prompt_input[strcspn(prompt_input, "\n")] = 0;
     }
 
-    char prompt_output[MAX_CHAT_BUFF_CONTEXT];
+    char prompt_output[MAX_BUFF_SIZE];
     if (get_prompt_response(api_key, model, role, instruction,
                             run_once == TRUE ? argv[1] : prompt_input,
-                            prompt_output,
-                            sizeof(prompt_output)) == ERR_UNRECOVERABLE) {
+                            prompt_output) == ERR_UNRECOVERABLE) {
       fprintf(stderr,
               "Could not get a response from the OpenAI Completions API\n");
       return ERR_UNRECOVERABLE;
     }
 
-    char content[MAX_CHAT_BUFF_CONTEXT];
+    char content[MAX_BUFF_SIZE];
     const int content_size = get_json_value(prompt_output, "content", content);
     if (content_size <= 0) {
       fprintf(stderr,
               "Could not parse JSON response into a readable format. Attempted "
               "to parse %s\n",
               prompt_output);
+      return ERR_UNRECOVERABLE;
+    }
+    content[content_size] = '\0';
+
+    if (add_context(content, FALSE) == ERR_UNRECOVERABLE) {
+      fprintf(stderr, "Could capture response to window context\n");
       return ERR_UNRECOVERABLE;
     }
 
