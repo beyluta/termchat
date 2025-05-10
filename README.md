@@ -29,11 +29,13 @@ Create this configuration file `~/.config/termchatrc.json`:
 
 After this is done, run the binary like this:
 
+### Normal mode
+
+Use this mode to get a one time response looking like this:
+
 ```bash
 ./termchat "Who created the C programming language?"
 ```
-
-You will get a response looking like this:
 
 ```
 +-------------------------------------------------------------------------------------------+
@@ -41,6 +43,24 @@ You will get a response looking like this:
 +-------------------------------------------------------------------------------------------+
 | The C programming language was created by Dennis Ritchie at Bell Labs in the early 1970s. |
 +-------------------------------------------------------------------------------------------+
+```
+
+### Interactive mode
+
+With interactive mode, the LLM will remember the context of your conversation.
+Pass the flag `-i` to activate it.
+
+```bash
+./termchat -i
+```
+
+```
++-------------------------------------------------------------------------------------------+
+| gpt-4.1                                                                                   |
++-------------------------------------------------------------------------------------------+
+| The C programming language was created by Dennis Ritchie at Bell Labs in the early 1970s. |
++-------------------------------------------------------------------------------------------+
+(gpt-4.1)> Who created the C programming language?
 ```
 
 ## Flags
