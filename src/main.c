@@ -36,6 +36,18 @@ const static int get_parameters(const int argc, const char **argv,
   return ERR_RECOVERABLE;
 }
 
+const static int unescape_string(char input[], const char match) {
+  int length = strlen(input);
+  for (int i = 0; i < length; i++) {
+    if (input[i] == '\\' && i + 1 < length && input[i + 1] == match) {
+      memcpy(&input[i], &input[i + 1], --length);
+      i--;
+      input[length] = '\0';
+    }
+  }
+  return ERR_RECOVERABLE;
+}
+
 const static int event_loop(const int argc, const char **argv,
                             const Parameters *params) {
   if (params->interactive_mode == TRUE)
@@ -118,6 +130,7 @@ const static int event_loop(const int argc, const char **argv,
       return ERR_UNRECOVERABLE;
     }
 
+    unescape_string(content, '"');
     const Window window = get_window_properties(content, model);
     draw_chat_window(window);
 
