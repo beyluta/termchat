@@ -1,6 +1,7 @@
 #include "../include/window.h"
 #include "../include/globdef.h"
 #include <stdio.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -60,17 +61,14 @@ const int draw_chat_window(const Window window) {
   return ERR_RECOVERABLE;
 }
 
-const Window calc_input_window_dimensions(const char input[],
-                                          const int input_size,
-                                          const char title[],
-                                          const int title_size) {
+const Window get_window_properties(const char input[], const char title[]) {
   const int window_size = get_terminal_window_size();
-  const int width = input_size;
+  const int width = strlen(input);
   const int height = (width / window_size) + 1;
   const Window window = {.height = height,
                          .width = width,
                          .content = input,
                          .title = title,
-                         .title_size = title_size};
+                         .title_size = strlen(title)};
   return window;
 }

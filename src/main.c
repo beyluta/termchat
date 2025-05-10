@@ -5,21 +5,40 @@
 #include <stdio.h>
 #include <string.h>
 
+#define HELP_TABLE                                                             \
+  "+----------------+----------------------+-------"                           \
+  "--------------------------+\n"                                              \
+  "| Short-form     | Long-form            | "                                 \
+  "Purpose                         |\n"                                        \
+  "+----------------+----------------------+------"                            \
+  "---------------------------+\n"                                             \
+  "| -i             | --interactive        | "                                 \
+  "Enters interactive mode         |\n"                                        \
+  "| -h             | --help               | Shows "                           \
+  "a table with all commands |\n"                                              \
+  "+----------------+----------------------+------"                            \
+  "---------------------------+\n"
+
+struct Parameters {
+  BOOLEAN interactive_mode;
+  BOOLEAN help_mode;
+} typedef Parameters;
+
 const static int get_parameters(const int argc, const char **argv,
-                                BOOLEAN *interactive_mode, BOOLEAN *help_mode) {
+                                Parameters *params) {
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--interactive") == 0) {
-      *interactive_mode = TRUE;
+      params->interactive_mode = TRUE;
     } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-      *help_mode = TRUE;
+      params->help_mode = TRUE;
     }
   }
   return ERR_RECOVERABLE;
 }
 
 const static int event_loop(const int argc, const char **argv,
-                            const BOOLEAN run_once) {
-  if (run_once == FALSE)
+                            const Parameters *params) {
+  if (params->interactive_mode == TRUE)
     clear_chat_window();
 
   for (;;) {
@@ -67,7 +86,7 @@ const static int event_loop(const int argc, const char **argv,
     }
 
     char prompt_input[MAX_BUFF_SIZE];
-    if (run_once == FALSE) {
+    if (params->interactive_mode == TRUE) {
       printf("(%s)> ", model);
       fgets(prompt_input, sizeof(prompt_input), stdin);
       prompt_input[strcspn(prompt_input, "\n")] = 0;
@@ -75,7 +94,8 @@ const static int event_loop(const int argc, const char **argv,
 
     char prompt_output[MAX_BUFF_SIZE];
     if (get_prompt_response(api_key, model, role, instruction,
-                            run_once == TRUE ? argv[1] : prompt_input,
+                            params->interactive_mode == FALSE ? argv[1]
+                                                              : prompt_input,
                             prompt_output) == ERR_UNRECOVERABLE) {
       fprintf(stderr,
               "Could not get a response from the OpenAI Completions API\n");
@@ -94,15 +114,14 @@ const static int event_loop(const int argc, const char **argv,
     content[content_size] = '\0';
 
     if (add_context(content, FALSE) == ERR_UNRECOVERABLE) {
-      fprintf(stderr, "Could capture response to window context\n");
+      fprintf(stderr, "Could not capture response to window context\n");
       return ERR_UNRECOVERABLE;
     }
 
-    const Window window =
-        calc_input_window_dimensions(content, content_size, model, model_size);
+    const Window window = get_window_properties(content, model);
     draw_chat_window(window);
 
-    if (run_once == TRUE)
+    if (params->interactive_mode == FALSE)
       return ERR_RECOVERABLE;
   }
 
@@ -110,33 +129,20 @@ const static int event_loop(const int argc, const char **argv,
 }
 
 int main(const int argc, const char **argv) {
-  BOOLEAN interactive_mode = FALSE;
-  BOOLEAN help_mode = FALSE;
-  get_parameters(argc, argv, &interactive_mode, &help_mode);
+  Parameters params;
+  get_parameters(argc, argv, &params);
 
-  if (help_mode == TRUE) {
-    const char help_table[] = "+----------------+----------------------+-------"
-                              "--------------------------+\n"
-                              "| Short-form     | Long-form            | "
-                              "Purpose                         |\n"
-                              "+----------------+----------------------+------"
-                              "---------------------------+\n"
-                              "| -i             | --interactive        | "
-                              "Enters interactive mode         |\n"
-                              "| -h             | --help               | Shows "
-                              "a table with all commands |\n"
-                              "+----------------+----------------------+------"
-                              "---------------------------+\n";
-    printf("%s", help_table);
+  if (params.help_mode == TRUE) {
+    printf("%s", HELP_TABLE);
     return ERR_RECOVERABLE;
   }
 
-  if (argc < 2 && interactive_mode == FALSE) {
+  if (argc < 2 && params.interactive_mode == FALSE) {
     fprintf(stderr, "Error: Invalid arguments.\n");
     fprintf(
         stderr,
         "Usage: ./<PROG_NAME> \"how to create a file via the terminal?\"\n");
     return ERR_UNRECOVERABLE;
   }
-  return event_loop(argc, argv, interactive_mode == FALSE);
+  return event_loop(argc, argv, &params);
 }
