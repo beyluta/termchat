@@ -8,7 +8,7 @@
  * @param is_user A boolean indicating if the context is user-specific.
  * @return A static constant integer representing the result of the operation.
  */
-const int add_context(const char input[], unsigned char is_user);
+int add_context(const char input[], bool is_user);
 
 /**
  * @brief Gets a specific value from a JSON object
@@ -17,7 +17,7 @@ const int add_context(const char input[], unsigned char is_user);
  * @param output pointer to the array of chars
  * @return Whether the function was successful
  */
-const int get_json_value(const char input[], const char key[], char output[]);
+int get_json_value(const char input[], const char key[], char output[]);
 
 /**
  * @brief Calls the OpenAI Completions API with the user input
@@ -31,8 +31,8 @@ const int get_json_value(const char input[], const char key[], char output[]);
  * @param outputSize size of the buffer
  * @return Whether the function was successful
  */
-const int get_prompt_response(const char api_key[], const char model[],
-                              const char role[], const char instruction[],
-                              const char input[], char output[]);
+int get_prompt_response(const char api_key[], const char model[],
+                        const char role[], const char instruction[],
+                        const char input[], char output[]);
 
 #endif

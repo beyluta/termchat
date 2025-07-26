@@ -1,12 +1,9 @@
 #ifndef GLOBDEF_H
 #define GLOBDEF_H
 
-#define ERR_UNRECOVERABLE 1
-#define ERR_RECOVERABLE 0
-#define MAX_BUFF_SIZE 65536
-#define BOOLEAN unsigned char
-#define TRUE 1
-#define FALSE 0
+constexpr unsigned char ERR_UNRECOVERABLE = 1;
+constexpr unsigned char ERR_RECOVERABLE = 0;
+constexpr unsigned short MAX_BUFF_SIZE = 65535;
 
 /**
  * @brief Get the value of a JSON object via its key
@@ -15,6 +12,6 @@
  * @param output The buffer where the extracted token will be stored.
  * @return The length of the json value
  */
-const int get_json_value(const char input[], const char key[], char output[]);
+int get_json_value(const char input[], const char key[], char output[]);
 
 #endif

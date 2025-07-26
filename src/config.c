@@ -6,7 +6,7 @@
 
 #define RC_FILENAME "termchatrc.json"
 
-const int get_rc_path(char output[], const int len) {
+int get_rc_path(char output[], const int len) {
   const char *config_dir = getenv("XDG_CONFIG_HOME");
   if (config_dir != NULL) {
     snprintf(output, len, "%s/%s", config_dir, RC_FILENAME);
@@ -22,7 +22,7 @@ const int get_rc_path(char output[], const int len) {
   return ERR_RECOVERABLE;
 }
 
-const int get_rc_exists() {
+int get_rc_exists() {
   char filepath[MAX_BUFF_SIZE];
   if (get_rc_path(filepath, sizeof(filepath)) == ERR_UNRECOVERABLE) {
     fprintf(stderr, "Could not find file\n");
@@ -31,8 +31,8 @@ const int get_rc_exists() {
   return access(filepath, F_OK) != 0;
 }
 
-const int get_rc_contents(const char *filename, char buffer[],
-                          unsigned long bufferLength) {
+int get_rc_contents(const char *filename, char buffer[],
+                    unsigned long bufferLength) {
   FILE *file = fopen(filename, "rb");
   if (file == NULL) {
     fprintf(stderr, "Failed to open file for reading\n");

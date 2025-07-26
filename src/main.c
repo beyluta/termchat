@@ -5,38 +5,37 @@
 #include <stdio.h>
 #include <string.h>
 
-#define HELP_TABLE                                                             \
-  "+----------------+----------------------+-------"                           \
-  "--------------------------+\n"                                              \
-  "| Short-form     | Long-form            | "                                 \
-  "Purpose                         |\n"                                        \
-  "+----------------+----------------------+------"                            \
-  "---------------------------+\n"                                             \
-  "| -i             | --interactive        | "                                 \
-  "Enters interactive mode         |\n"                                        \
-  "| -h             | --help               | Shows "                           \
-  "a table with all commands |\n"                                              \
-  "+----------------+----------------------+------"                            \
-  "---------------------------+\n"
+constexpr char HELP_TABLE[] = "+----------------+----------------------+-------"
+                              "--------------------------+\n"
+                              "| Short-form     | Long-form            | "
+                              "Purpose                         |\n"
+                              "+----------------+----------------------+------"
+                              "---------------------------+\n"
+                              "| -i             | --interactive        | "
+                              "Enters interactive mode         |\n"
+                              "| -h             | --help               | Shows "
+                              "a table with all commands |\n"
+                              "+----------------+----------------------+------"
+                              "---------------------------+\n";
 
 struct Parameters {
-  BOOLEAN interactive_mode;
-  BOOLEAN help_mode;
+  bool interactive_mode;
+  bool help_mode;
 } typedef Parameters;
 
-const static int get_parameters(const int argc, const char **argv,
-                                Parameters *params) {
+static int get_parameters(const int argc, const char **argv,
+                          Parameters *params) {
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--interactive") == 0) {
-      params->interactive_mode = TRUE;
+      params->interactive_mode = true;
     } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-      params->help_mode = TRUE;
+      params->help_mode = true;
     }
   }
   return ERR_RECOVERABLE;
 }
 
-const static int unescape_string(char input[], const char match) {
+static int unescape_string(char input[], const char match) {
   int length = strlen(input);
   for (int i = 0; i < length; i++) {
     if (input[i] == '\\' && i + 1 < length && input[i + 1] == match) {
@@ -48,9 +47,8 @@ const static int unescape_string(char input[], const char match) {
   return ERR_RECOVERABLE;
 }
 
-const static int event_loop(const int argc, const char **argv,
-                            const Parameters *params) {
-  if (params->interactive_mode == TRUE)
+static int event_loop(const char **argv, const Parameters *params) {
+  if (params->interactive_mode == true)
     clear_chat_window();
 
   for (;;) {
@@ -98,7 +96,7 @@ const static int event_loop(const int argc, const char **argv,
     }
 
     char prompt_input[MAX_BUFF_SIZE];
-    if (params->interactive_mode == TRUE) {
+    if (params->interactive_mode == true) {
       printf("(%s)> ", model);
       fgets(prompt_input, sizeof(prompt_input), stdin);
       prompt_input[strcspn(prompt_input, "\n")] = 0;
@@ -106,7 +104,7 @@ const static int event_loop(const int argc, const char **argv,
 
     char prompt_output[MAX_BUFF_SIZE];
     if (get_prompt_response(api_key, model, role, instruction,
-                            params->interactive_mode == FALSE ? argv[1]
+                            params->interactive_mode == false ? argv[1]
                                                               : prompt_input,
                             prompt_output) == ERR_UNRECOVERABLE) {
       fprintf(stderr,
@@ -125,7 +123,7 @@ const static int event_loop(const int argc, const char **argv,
     }
     content[content_size] = '\0';
 
-    if (add_context(content, FALSE) == ERR_UNRECOVERABLE) {
+    if (add_context(content, false) == ERR_UNRECOVERABLE) {
       fprintf(stderr, "Could not capture response to window context\n");
       return ERR_UNRECOVERABLE;
     }
@@ -134,7 +132,7 @@ const static int event_loop(const int argc, const char **argv,
     const Window window = get_window_properties(content, model);
     draw_chat_window(window);
 
-    if (params->interactive_mode == FALSE)
+    if (params->interactive_mode == false)
       return ERR_RECOVERABLE;
   }
 
@@ -142,20 +140,20 @@ const static int event_loop(const int argc, const char **argv,
 }
 
 int main(const int argc, const char **argv) {
-  Parameters params;
+  Parameters params = {};
   get_parameters(argc, argv, &params);
 
-  if (params.help_mode == TRUE) {
+  if (params.help_mode == true) {
     printf("%s", HELP_TABLE);
     return ERR_RECOVERABLE;
   }
 
-  if (argc < 2 && params.interactive_mode == FALSE) {
+  if (argc < 2 && params.interactive_mode == false) {
     fprintf(stderr, "Error: Invalid arguments.\n");
     fprintf(
         stderr,
         "Usage: ./<PROG_NAME> \"how to create a file via the terminal?\"\n");
     return ERR_UNRECOVERABLE;
   }
-  return event_loop(argc, argv, &params);
+  return event_loop(argv, &params);
 }

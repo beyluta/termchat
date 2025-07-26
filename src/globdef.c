@@ -4,8 +4,8 @@
 
 #define MAX_JSON_TOKENS 128
 
-static const int get_token_index(void *tokens, const char input[],
-                                 const int index, char output[]) {
+static int get_token_index(void *tokens, const char input[], const int index,
+                           char output[]) {
   const jsmntok_t *token_array = (jsmntok_t *)tokens;
   const int len = token_array[index].end - token_array[index].start;
   strncpy(output, &input[token_array[index].start], len);
@@ -13,7 +13,7 @@ static const int get_token_index(void *tokens, const char input[],
   return len;
 }
 
-const int get_json_value(const char input[], const char key[], char output[]) {
+int get_json_value(const char input[], const char key[], char output[]) {
   jsmn_parser parser;
   jsmntok_t tokens[MAX_JSON_TOKENS];
 

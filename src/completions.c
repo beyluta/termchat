@@ -5,16 +5,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ENDPOINT_COMPLETIONS "https://api.openai.com/v1/chat/completions"
-#define MAX_CONTEXT_SIZE 256
-#define ROLE_USER "user"
-#define ROLE_ASSISTANT "assistant"
+constexpr char ENDPOINT_COMPLETIONS[] =
+    "https://api.openai.com/v1/chat/completions";
+constexpr char ROLE_USER[] = "user";
+constexpr char ROLE_ASSISTANT[] = "assistant";
+constexpr unsigned char MAX_CONTEXT_SIZE = 255;
 
 static char context[MAX_CONTEXT_SIZE][MAX_BUFF_SIZE];
 static unsigned short context_size = 0;
 static unsigned long s_buff = 0;
 
-static const int get_context(char dest[], const int size) {
+static int get_context(char dest[]) {
   int start = 0;
   for (int i = 0; i < context_size; i++) {
     const int ctx_size = strlen(context[i]) + 1;
@@ -29,45 +30,44 @@ static const int get_context(char dest[], const int size) {
 
 static int write_func(void *ptr, int size, int nmemb, char output[]) {
   const unsigned long totalSize = size * nmemb;
-  char *c_ptr = (char *)ptr;
   memcpy(&output[s_buff], ptr, s_buff + totalSize);
   s_buff += totalSize;
   return totalSize;
 }
 
-const int add_context(const char input[], BOOLEAN is_user) {
+int add_context(const char input[], bool is_user) {
   if (context_size >= MAX_CONTEXT_SIZE) {
     fprintf(stderr, "Context window limit has been exceeded\n");
     return ERR_UNRECOVERABLE;
   }
 
   const int temp_len =
-      strlen(input) + 28 + strlen(is_user == TRUE ? ROLE_USER : ROLE_ASSISTANT);
+      strlen(input) + 28 + strlen(is_user == true ? ROLE_USER : ROLE_ASSISTANT);
   char temp[MAX_BUFF_SIZE];
   snprintf(temp, temp_len, "{\"role\":\"%s\",\"content\":\"%s\"}",
-           is_user == TRUE ? ROLE_USER : ROLE_ASSISTANT, input);
+           is_user == true ? ROLE_USER : ROLE_ASSISTANT, input);
 
   memcpy(context[context_size], temp, MAX_BUFF_SIZE);
   context[context_size++][temp_len] = '\0';
   return ERR_RECOVERABLE;
 }
 
-const int get_prompt_response(const char api_key[], const char model[],
-                              const char role[], const char instruction[],
-                              const char input[], char output[]) {
+int get_prompt_response(const char api_key[], const char model[],
+                        const char role[], const char instruction[],
+                        const char input[], char output[]) {
   CURL *pCurl = curl_easy_init();
   if (pCurl == NULL) {
     fprintf(stderr, "Could not initialize libcurl\n");
     return ERR_UNRECOVERABLE;
   }
 
-  if (add_context(input, TRUE) == ERR_UNRECOVERABLE) {
+  if (add_context(input, true) == ERR_UNRECOVERABLE) {
     fprintf(stderr, "Could not add context to window\n");
     return ERR_UNRECOVERABLE;
   }
 
   char chat_ctx[MAX_BUFF_SIZE];
-  get_context(chat_ctx, sizeof(chat_ctx));
+  get_context(chat_ctx);
 
   curl_easy_setopt(pCurl, CURLOPT_URL, ENDPOINT_COMPLETIONS);
 
