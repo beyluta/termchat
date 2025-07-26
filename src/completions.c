@@ -15,46 +15,48 @@ static char context[MAX_CONTEXT_SIZE][MAX_BUFF_SIZE];
 static unsigned short context_size = 0;
 static unsigned long s_buff = 0;
 
-static int get_context(char dest[]) {
-  int start = 0;
+static size_t get_context(char dest[]) {
+  size_t start = 0;
   for (int i = 0; i < context_size; i++) {
-    const int ctx_size = strlen(context[i]) + 1;
+    const size_t ctx_size = strlen(context[i]) + 1;
     char temp[MAX_BUFF_SIZE];
     snprintf(temp, ctx_size + 1, "%s,", context[i]);
+
+    if (ctx_size >= MAX_CONTEXT_SIZE) {
+      fprintf(stderr, "Context was bigger than maxumum allowed\n");
+      return ERR_UNRECOVERABLE;
+    }
     memcpy(&dest[start], temp, ctx_size);
     start += ctx_size;
   }
   dest[start - 1] = '\0';
-  return ERR_UNRECOVERABLE;
+  return ERR_RECOVERABLE;
 }
 
-static int write_func(void *ptr, int size, int nmemb, char output[]) {
-  const unsigned long totalSize = size * nmemb;
+static size_t write_func(void *ptr, int size, int nmemb, char output[]) {
+  const size_t totalSize = size * nmemb;
   memcpy(&output[s_buff], ptr, s_buff + totalSize);
   s_buff += totalSize;
   return totalSize;
 }
 
-int add_context(const char input[], bool is_user) {
+size_t add_context(const char input[], bool is_user) {
   if (context_size >= MAX_CONTEXT_SIZE) {
     fprintf(stderr, "Context window limit has been exceeded\n");
     return ERR_UNRECOVERABLE;
   }
 
-  const int temp_len =
-      strlen(input) + 28 + strlen(is_user == true ? ROLE_USER : ROLE_ASSISTANT);
-  char temp[MAX_BUFF_SIZE];
-  snprintf(temp, temp_len, "{\"role\":\"%s\",\"content\":\"%s\"}",
+  char temp[MAX_BUFF_SIZE] = {};
+  snprintf(temp, MAX_CONTEXT_SIZE, "{\"role\":\"%s\",\"content\":\"%s\"}",
            is_user == true ? ROLE_USER : ROLE_ASSISTANT, input);
-
   memcpy(context[context_size], temp, MAX_BUFF_SIZE);
-  context[context_size++][temp_len] = '\0';
+  context[context_size++][MAX_BUFF_SIZE - 1] = '\0';
   return ERR_RECOVERABLE;
 }
 
-int get_prompt_response(const char api_key[], const char model[],
-                        const char role[], const char instruction[],
-                        const char input[], char output[]) {
+size_t get_prompt_response(const char api_key[], const char model[],
+                           const char role[], const char instruction[],
+                           const char input[], char output[]) {
   CURL *pCurl = curl_easy_init();
   if (pCurl == NULL) {
     fprintf(stderr, "Could not initialize libcurl\n");
@@ -67,7 +69,10 @@ int get_prompt_response(const char api_key[], const char model[],
   }
 
   char chat_ctx[MAX_BUFF_SIZE];
-  get_context(chat_ctx);
+  if (get_context(chat_ctx) == ERR_UNRECOVERABLE) {
+    fprintf(stderr, "Error reading entire chat context\n");
+    return ERR_UNRECOVERABLE;
+  }
 
   curl_easy_setopt(pCurl, CURLOPT_URL, ENDPOINT_COMPLETIONS);
 

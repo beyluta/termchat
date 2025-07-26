@@ -2,13 +2,15 @@
 #ifndef COMPLETIONS_H
 #define COMPLETIONS_H
 
+#include <stddef.h>
+
 /**
  * @brief Adds context based on the provided input.
  * @param input The input string to process.
  * @param is_user A boolean indicating if the context is user-specific.
  * @return A static constant integer representing the result of the operation.
  */
-int add_context(const char input[], bool is_user);
+size_t add_context(const char input[], bool is_user);
 
 /**
  * @brief Gets a specific value from a JSON object
@@ -17,7 +19,7 @@ int add_context(const char input[], bool is_user);
  * @param output pointer to the array of chars
  * @return Whether the function was successful
  */
-int get_json_value(const char input[], const char key[], char output[]);
+size_t get_json_value(const char input[], const char key[], char output[]);
 
 /**
  * @brief Calls the OpenAI Completions API with the user input
@@ -31,8 +33,8 @@ int get_json_value(const char input[], const char key[], char output[]);
  * @param outputSize size of the buffer
  * @return Whether the function was successful
  */
-int get_prompt_response(const char api_key[], const char model[],
-                        const char role[], const char instruction[],
-                        const char input[], char output[]);
+size_t get_prompt_response(const char api_key[], const char model[],
+                           const char role[], const char instruction[],
+                           const char input[], char output[]);
 
 #endif

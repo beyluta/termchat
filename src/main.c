@@ -23,8 +23,8 @@ struct Parameters {
   bool help_mode;
 } typedef Parameters;
 
-static int get_parameters(const int argc, const char **argv,
-                          Parameters *params) {
+static size_t get_parameters(const int argc, const char **argv,
+                             Parameters *params) {
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--interactive") == 0) {
       params->interactive_mode = true;
@@ -35,7 +35,7 @@ static int get_parameters(const int argc, const char **argv,
   return ERR_RECOVERABLE;
 }
 
-static int unescape_string(char input[], const char match) {
+static size_t unescape_string(char input[], const char match) {
   int length = strlen(input);
   for (int i = 0; i < length; i++) {
     if (input[i] == '\\' && i + 1 < length && input[i + 1] == match) {
@@ -47,7 +47,7 @@ static int unescape_string(char input[], const char match) {
   return ERR_RECOVERABLE;
 }
 
-static int event_loop(const char **argv, const Parameters *params) {
+static size_t event_loop(const char **argv, const Parameters *params) {
   if (params->interactive_mode == true)
     clear_chat_window();
 

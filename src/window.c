@@ -5,13 +5,13 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-static int draw_top_bottom_border_window(const int width) {
+static size_t draw_top_bottom_border_window(const int width) {
   for (int i = 0; i <= width; i++)
     printf("%c", i <= 0 || i >= width ? '+' : '-');
   return ERR_RECOVERABLE;
 }
 
-static int get_terminal_window_size() {
+static size_t get_terminal_window_size() {
   struct winsize window;
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &window) < 0) {
     fprintf(stderr, "Could not determine terminal window size\n");
@@ -20,8 +20,8 @@ static int get_terminal_window_size() {
   return window.ws_col - 1;
 }
 
-static int draw_text_window(const int width, const int height,
-                            const char text[]) {
+static size_t draw_text_window(const int width, const int height,
+                               const char text[]) {
   const int window_size = get_terminal_window_size() - 2;
   for (int j = 0, k = 0; j < height; j++) {
     printf("\n");
@@ -42,12 +42,12 @@ static int draw_text_window(const int width, const int height,
   return ERR_RECOVERABLE;
 }
 
-int clear_chat_window() {
+size_t clear_chat_window() {
   printf("\e[1;1H\e[2J");
   return ERR_RECOVERABLE;
 }
 
-int draw_chat_window(const Window window) {
+size_t draw_chat_window(const Window window) {
   const int window_size = get_terminal_window_size();
   clear_chat_window();
   draw_top_bottom_border_window(window_size);
