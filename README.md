@@ -8,7 +8,7 @@ Make sure to have the following at hand:
 
 - Any Linux operating system
 - Curl installed via your package manager
-- OpenAI API-key any enough credits to make requests
+- OpenAI API-key and enough credits to make requests
 
 ## Usage
 
