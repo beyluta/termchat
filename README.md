@@ -6,13 +6,9 @@ Integrated A.I Chatbot inside the terminal. Programmed entirely in C.
 
 Make sure to have the following at hand:
 
-- Linux environment
-- OpenAI API-key
-
-For developers you also need the following:
-
-- GNU Make >= 4.4.1
-- clang >= 19.1.7
+- Any Linux operating system
+- Curl installed via your package manager
+- OpenAI API-key any enough credits to make requests
 
 ## Usage
 
@@ -73,6 +69,18 @@ The following flags can be used when starting the program.
 | -h         | --help        | Shows a table with all flags and options |
 
 ## Development
+
+These were the resources used to develop this application. The project may still
+compile and run under different environments, but this has not been tested nor
+do I guarantee that it will work.
+
+| Component | Description      | Version        |
+| --------- | ---------------- | -------------- |
+| C         | Language         | C23            |
+| Clang     | Compiler         | 20.1.8         |
+| GNU Make  | Build Automation | 4.4.1          |
+| Linux     | Kernel           | 6.15.7-arch1-1 |
+| Curl      | Library          | 8.15.0         |
 
 Simply clone or fork the project then run the following
 command to update dependencies and compile:
