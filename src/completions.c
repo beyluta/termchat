@@ -23,7 +23,7 @@ static size_t get_context(char dest[]) {
     snprintf(temp, ctx_size + 1, "%s,", context[i]);
 
     if (ctx_size >= MAX_CONTEXT_SIZE) {
-      fprintf(stderr, "Context was bigger than maxumum allowed\n");
+      fprintf(stderr, "Context was bigger than maximum allowed\n");
       return ERR_UNRECOVERABLE;
     }
     memcpy(&dest[start], temp, ctx_size);
