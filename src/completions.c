@@ -19,10 +19,10 @@ static size_t get_context(char dest[]) {
   size_t start = 0;
   for (int i = 0; i < context_size; i++) {
     const size_t ctx_size = strlen(context[i]) + 1;
-    char temp[MAX_BUFF_SIZE];
-    snprintf(temp, ctx_size + 1, "%s,", context[i]);
+    char temp[MAX_BUFF_SIZE] = {};
+    snprintf(temp, MAX_BUFF_SIZE, "%s,", context[i]);
 
-    if (ctx_size >= MAX_CONTEXT_SIZE) {
+    if (ctx_size >= MAX_BUFF_SIZE) {
       fprintf(stderr, "Context was bigger than maximum allowed\n");
       return ERR_UNRECOVERABLE;
     }
@@ -47,7 +47,7 @@ size_t add_context(const char input[], bool is_user) {
   }
 
   char temp[MAX_BUFF_SIZE] = {};
-  snprintf(temp, MAX_CONTEXT_SIZE, "{\"role\":\"%s\",\"content\":\"%s\"}",
+  snprintf(temp, MAX_BUFF_SIZE, "{\"role\":\"%s\",\"content\":\"%s\"}",
            is_user == true ? ROLE_USER : ROLE_ASSISTANT, input);
   memcpy(context[context_size], temp, MAX_BUFF_SIZE);
   context[context_size++][MAX_BUFF_SIZE - 1] = '\0';
@@ -87,8 +87,8 @@ size_t get_prompt_response(const char api_key[], const char model[],
   curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, write_func);
   curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, output);
 
-  char data[MAX_BUFF_SIZE];
-  snprintf(data, sizeof(data),
+  char data[MAX_BUFF_SIZE] = {};
+  snprintf(data, MAX_BUFF_SIZE,
            "{ \"model\": \"%s\", \"messages\": [{ \"role\": \"%s\", "
            "\"content\": \"%s\" }, %s] }",
            model, role, instruction, chat_ctx);

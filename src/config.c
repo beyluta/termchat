@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define RC_FILENAME "termchatrc.json"
+constexpr unsigned char RC_FILENAME[] = "termchatrc.json";
 
 int get_rc_path(char output[], const int len) {
   const char *config_dir = getenv("XDG_CONFIG_HOME");

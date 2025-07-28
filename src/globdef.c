@@ -2,7 +2,7 @@
 #include "../jsmn/jsmn.h"
 #include <string.h>
 
-#define MAX_JSON_TOKENS 128
+constexpr unsigned char MAX_JSON_TOKENS = 128;
 
 static size_t get_token_index(void *tokens, const char input[], const int index,
                               char output[]) {
