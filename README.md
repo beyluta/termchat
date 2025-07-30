@@ -59,6 +59,12 @@ Pass the flag `-i` to activate it.
 (gpt-4.1)> Who created the C programming language?
 ```
 
+### Command mode
+
+You may configure the program to execute commands between backticks in the `~/.config/termchatrc.json`.
+The program will then ask you if you would like to execute the command that the LLM
+provided. Make sure you know what you are doing. Never blindly trust an LLM.
+
 ## Flags
 
 The following flags can be used when starting the program.

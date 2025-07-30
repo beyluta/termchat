@@ -2,9 +2,13 @@
 #include "../include/config.h"
 #include "../include/globdef.h"
 #include "../include/window.h"
+#define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+constexpr unsigned char COMMAND_MIN_LEN = 2;
+constexpr char COMMAND_DELIMITER = '`';
 constexpr char HELP_TABLE[] = "+----------------+----------------------+-------"
                               "--------------------------+\n"
                               "| Short-form     | Long-form            | "
@@ -35,7 +39,7 @@ static size_t get_parameters(const int argc, const char **argv,
   return ERR_RECOVERABLE;
 }
 
-static size_t unescape_string(char input[], const char match) {
+static size_t unescape_string(char *input, const char match) {
   int length = strlen(input);
   for (int i = 0; i < length; i++) {
     if (input[i] == '\\' && i + 1 < length && input[i + 1] == match) {
@@ -47,9 +51,36 @@ static size_t unescape_string(char input[], const char match) {
   return ERR_RECOVERABLE;
 }
 
+static size_t get_executable_command(const char *src, char *dest) {
+  const int len = strlen(src);
+  int start = -1, end = -1;
+  for (int i = 0; i < len; i++) {
+    if (src[i] == COMMAND_DELIMITER) {
+      if (start < 0) {
+        start = i;
+        continue;
+      }
+
+      end = i;
+      break;
+    }
+  }
+
+  const int size = end - start;
+  if (start < 0 || end < 0 || size > MAX_BUFF_SIZE || size < COMMAND_MIN_LEN) {
+    return ERR_UNRECOVERABLE;
+  }
+
+  memcpy(dest, &src[start + 1], size - 1);
+  dest[size - 1] = '\0';
+  return ERR_RECOVERABLE;
+}
+
 static size_t event_loop(const char **argv, const Parameters *params) {
   if (params->interactive_mode == true)
     clear_chat_window();
+
+  bool print_model = true;
 
   for (;;) {
     char filepath[MAX_BUFF_SIZE];
@@ -97,9 +128,19 @@ static size_t event_loop(const char **argv, const Parameters *params) {
 
     char prompt_input[MAX_BUFF_SIZE];
     if (params->interactive_mode == true) {
-      printf("(%s)> ", model);
+      if (print_model) {
+        printf("(%s)> ", model);
+      }
+
       fgets(prompt_input, sizeof(prompt_input), stdin);
       prompt_input[strcspn(prompt_input, "\n")] = 0;
+      print_model = true;
+    }
+
+    const size_t input_len = strlen(prompt_input);
+    if (input_len <= 0) {
+      print_model = false;
+      continue;
     }
 
     char prompt_output[MAX_BUFF_SIZE];
@@ -131,6 +172,23 @@ static size_t event_loop(const char **argv, const Parameters *params) {
     unescape_string(content, '"');
     const Window window = get_window_properties(content, model);
     draw_chat_window(window);
+
+    char command[MAX_BUFF_SIZE];
+    if (get_executable_command(content, command) == ERR_RECOVERABLE) {
+      printf("> %s would like to execute (Y/n): %s\n", model, command);
+      const char next_char = getchar();
+      if (next_char == 'y' || next_char == 'Y') {
+        FILE *file = popen(command, "r");
+        if (file == nullptr) {
+          fprintf(stderr, "Failed to execute command\n");
+        }
+        char output[MAX_BUFF_SIZE];
+        while (fgets(output, MAX_BUFF_SIZE, file) != NULL) {
+          printf("%s", output);
+        }
+        pclose(file);
+      }
+    }
 
     if (params->interactive_mode == false)
       return ERR_RECOVERABLE;
