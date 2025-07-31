@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
+#include <unistd.h>
 
 constexpr unsigned char COMMAND_MIN_LEN = 2;
 constexpr char COMMAND_DELIMITER = '`';
@@ -176,6 +178,15 @@ static size_t event_loop(const char **argv, const Parameters *params) {
     char command[MAX_BUFF_SIZE];
     if (get_executable_command(content, command) == ERR_RECOVERABLE) {
       printf("> %s would like to execute (Y/n): %s\n", model, command);
+
+      // Here we need to modify the parameters of the current terminal so that
+      // our next input can be processed without the need to press the enter key
+      struct termios old_termios, new_termios;
+      tcgetattr(STDIN_FILENO, &old_termios);
+      new_termios = old_termios;
+      new_termios.c_lflag &= ~(ICANON | ECHO);
+      tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+
       const char next_char = getchar();
       if (next_char == 'y' || next_char == 'Y') {
         FILE *file = popen(command, "r");
@@ -188,6 +199,9 @@ static size_t event_loop(const char **argv, const Parameters *params) {
         }
         pclose(file);
       }
+
+      // Reverting the changes made to the terminal above
+      tcsetattr(STDIN_FILENO, TCSANOW, &old_termios);
     }
 
     if (params->interactive_mode == false)
