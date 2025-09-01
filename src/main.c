@@ -156,15 +156,13 @@ static size_t event_loop(const char **argv, const Parameters *params) {
     }
 
     char content[MAX_BUFF_SIZE];
-    const int content_size = get_json_value(prompt_output, "content", content);
-    if (content_size <= 0) {
+    if (!get_json_value(prompt_output, "content", content)) {
       fprintf(stderr,
               "Could not parse JSON response into a readable format. Attempted "
               "to parse %s\n",
               prompt_output);
       return ERR_UNRECOVERABLE;
     }
-    content[content_size] = '\0';
 
     if (add_context(content, false) == ERR_UNRECOVERABLE) {
       fprintf(stderr, "Could not capture response to window context\n");

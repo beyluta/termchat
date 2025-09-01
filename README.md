@@ -111,4 +111,3 @@ A new folder `build` will be generated in the root of the project.
 Many thanks to these resources:
 
 - [Libcurl](https://curl.se/)
-- [jsmn](https://github.com/zserge/jsmn)

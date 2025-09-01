@@ -43,7 +43,7 @@ static size_t draw_text_window(const int width, const int height,
 }
 
 size_t clear_chat_window() {
-  printf("\e[1;1H\e[2J");
+  // printf("\e[1;1H\e[2J");
   return ERR_RECOVERABLE;
 }
 

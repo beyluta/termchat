@@ -14,6 +14,6 @@ constexpr unsigned short MAX_BUFF_SIZE = 65535;
  * @param output The buffer where the extracted token will be stored.
  * @return The length of the json value
  */
-size_t get_json_value(const char input[], const char key[], char output[]);
+bool get_json_value(const char input[], const char key[], char output[]);
 
 #endif

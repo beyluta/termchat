@@ -19,7 +19,7 @@ size_t add_context(const char input[], bool is_user);
  * @param output pointer to the array of chars
  * @return Whether the function was successful
  */
-size_t get_json_value(const char input[], const char key[], char output[]);
+bool get_json_value(const char input[], const char key[], char output[]);
 
 /**
  * @brief Calls the OpenAI Completions API with the user input
