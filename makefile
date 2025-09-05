@@ -1,4 +1,4 @@
-.PHONY: clean build update
+.PHONY: clean build update build-only
 
 COMPILER = clang
 OUTDIR = build
@@ -23,4 +23,6 @@ clean:
 	rm -f $(OUT)
 build: update clean
 	mkdir -p $(OUTDIR)
+	$(COMPILER) $(INCLUDES) $(SOURCES) -o $(OUT) $(LIBS) $(ARGS)
+build-only:
 	$(COMPILER) $(INCLUDES) $(SOURCES) -o $(OUT) $(LIBS) $(ARGS)
