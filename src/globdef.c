@@ -8,11 +8,11 @@ bool get_json_value(const char input[], const char key[], char output[]) {
     return false;
   }
 
-  if ((status = GetProperty(json, &json, key) != FUNC_SUCCESS)) {
+  if ((status = GetProperty(&json, key)) != FUNC_SUCCESS) {
     return false;
   }
 
-  if ((status = ConvertJsonToString(json, output) != FUNC_SUCCESS)) {
+  if ((status = ConvertJsonToString(json, output)) != FUNC_SUCCESS) {
     return false;
   }
 

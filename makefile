@@ -1,4 +1,4 @@
-.PHONY: clean build update build-only
+.PHONY: clean build update init
 
 COMPILER = clang
 OUTDIR = build
@@ -17,12 +17,12 @@ ARGS = -Wall \
 			 -std=c23 \
 			 -O2
 
-update:
+init:
 	git submodule update --init --recursive
+update:
+	git submodule update --recursive --remote
 clean:
 	rm -f $(OUT)
-build: update clean
+build: clean
 	mkdir -p $(OUTDIR)
-	$(COMPILER) $(INCLUDES) $(SOURCES) -o $(OUT) $(LIBS) $(ARGS)
-build-only:
 	$(COMPILER) $(INCLUDES) $(SOURCES) -o $(OUT) $(LIBS) $(ARGS)
