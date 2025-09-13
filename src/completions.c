@@ -33,7 +33,7 @@ static size_t get_context(char dest[]) {
   return ERR_RECOVERABLE;
 }
 
-static size_t write_func(void *ptr, int size, int nmemb, char output[]) {
+static size_t write_func(void *ptr, size_t size, size_t nmemb, void *output) {
   const size_t totalSize = size * nmemb;
   memcpy(&output[s_buff], ptr, s_buff + totalSize);
   s_buff += totalSize;
@@ -56,7 +56,7 @@ size_t add_context(const char input[], bool is_user) {
 
 size_t get_prompt_response(const char api_key[], const char model[],
                            const char role[], const char instruction[],
-                           const char input[], char output[]) {
+                           const char input[], char *output) {
   CURL *pCurl = curl_easy_init();
   if (pCurl == NULL) {
     fprintf(stderr, "Could not initialize libcurl\n");

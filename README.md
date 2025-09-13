@@ -85,8 +85,8 @@ do I guarantee that it will work.
 | C         | Language         | C23            |
 | Clang     | Compiler         | 20.1.8         |
 | GNU Make  | Build Automation | 4.4.1          |
-| Linux     | Kernel           | 6.15.7-arch1-1 |
-| Curl      | Library          | 8.15.0         |
+| Linux     | Kernel           | 6.16.7-arch1-1 |
+| Curl      | Library          | 8.16.0         |
 
 Simply clone or fork the project then run the following
 command to update dependencies and compile:
