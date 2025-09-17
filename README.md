@@ -4,11 +4,45 @@ Integrated A.I Chatbot inside the terminal. Programmed entirely in C.
 
 ## Prerequisites
 
-Make sure to have the following at hand:
+You must have the following for the project to work:
 
-- Any Linux operating system
+- Any Linux distribution
 - Curl installed via your package manager
-- OpenAI API-key and enough credits to make requests
+- OpenAI API-Key and enough credits to make requests
+
+## Build
+
+These were the resources used to develop this application. The project may still
+compile and run under different environments, but this has not been tested nor
+do I guarantee that it will work.
+
+| Component | Description | Version        |
+| --------- | ----------- | -------------- |
+| C         | Language    | C23            |
+| Clang     | Compiler    | 20.1.8         |
+| Linux     | Kernel      | 6.16.7-arch1-1 |
+| Curl      | Library     | 8.16.0         |
+
+Build and run the executable using either of the following commands:
+
+```bash
+clang -std=c23 build.c && ./a.out && rm a.out
+```
+
+```bash
+gcc build.c && ./a.out && rm a.out
+```
+
+A new folder `build` will be generated in the root of the project.
+
+```bash
+📂 /
+├── 📂 build
+    └── out
+├── 📂 include
+├── 📂 src
+└── ...
+```
 
 ## Usage
 
@@ -73,38 +107,6 @@ The following flags can be used when starting the program.
 | ---------- | ------------- | ---------------------------------------- |
 | -i         | --interactive | Starts the program in interactive mode   |
 | -h         | --help        | Shows a table with all flags and options |
-
-## Development
-
-These were the resources used to develop this application. The project may still
-compile and run under different environments, but this has not been tested nor
-do I guarantee that it will work.
-
-| Component | Description      | Version        |
-| --------- | ---------------- | -------------- |
-| C         | Language         | C23            |
-| Clang     | Compiler         | 20.1.8         |
-| GNU Make  | Build Automation | 4.4.1          |
-| Linux     | Kernel           | 6.16.7-arch1-1 |
-| Curl      | Library          | 8.16.0         |
-
-Simply clone or fork the project then run the following
-command to update dependencies and compile:
-
-```bash
-make build
-```
-
-A new folder `build` will be generated in the root of the project.
-
-```bash
-📂 /
-├── 📂 build
-    └── out
-├── 📂 include
-├── 📂 src
-└── ...
-```
 
 ## Acknowledgements
 
