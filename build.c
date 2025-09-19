@@ -56,7 +56,7 @@ int main() {
   printc("Build directory created", term_color_green);
 
   char command[ARGSLEN];
-  auto total = snprintf(command, ARGSLEN, "%s; %s -o %s", UPDATESUBMODULES,
+  auto total = snprintf(command, ARGSLEN, "%s && %s -o %s", UPDATESUBMODULES,
                         COMPILER, OUTBIN);
   if (total < 0) {
     printc("Compiler and output were unable to be set", term_color_red);
