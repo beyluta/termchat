@@ -9,25 +9,32 @@ constexpr char ENDPOINT_COMPLETIONS[] =
     "https://api.openai.com/v1/chat/completions";
 constexpr char ROLE_USER[] = "user";
 constexpr char ROLE_ASSISTANT[] = "assistant";
-constexpr unsigned char MAX_CONTEXT_SIZE = 255;
+constexpr unsigned char MAX_CONTEXT_ARRAY_SIZE = 255;
 
-static char context[MAX_CONTEXT_SIZE][MAX_BUFF_SIZE];
+static char context[MAX_CONTEXT_ARRAY_SIZE][MAX_BUFF_SIZE];
 static unsigned short context_size = 0;
 static unsigned long s_buff = 0;
 
 static size_t get_context(char dest[]) {
   size_t start = 0;
   for (int i = 0; i < context_size; i++) {
-    const size_t ctx_size = strlen(context[i]) + 1;
-    char temp[MAX_BUFF_SIZE] = {};
-    snprintf(temp, MAX_BUFF_SIZE, "%s,", context[i]);
+    const size_t contextLength = strlen(context[i]) + 1;
 
-    if (ctx_size >= MAX_BUFF_SIZE) {
+    // This is a workaround so that we may put the context[i] into a local array
+    char userContext[MAX_BUFF_SIZE];
+    memcpy(userContext, context[i], MAX_BUFF_SIZE);
+    userContext[MAX_CONTEXT_ARRAY_SIZE - 1] = '\0';
+
+    char temp[MAX_BUFF_SIZE + 1];
+    snprintf(temp, MAX_BUFF_SIZE + 1, "%s,", userContext);
+
+    if (contextLength >= MAX_BUFF_SIZE) {
       fprintf(stderr, "Context was bigger than maximum allowed\n");
       return ERR_UNRECOVERABLE;
     }
-    memcpy(&dest[start], temp, ctx_size);
-    start += ctx_size;
+
+    memcpy(&dest[start], temp, contextLength);
+    start += contextLength;
   }
   dest[start - 1] = '\0';
   return ERR_RECOVERABLE;
@@ -35,13 +42,14 @@ static size_t get_context(char dest[]) {
 
 static size_t write_func(void *ptr, size_t size, size_t nmemb, void *output) {
   const size_t totalSize = size * nmemb;
-  memcpy(&output[s_buff], ptr, s_buff + totalSize);
+  char *outputPtr = (char *)output;
+  memcpy(&outputPtr[s_buff], ptr, s_buff + totalSize);
   s_buff += totalSize;
   return totalSize;
 }
 
 size_t add_context(const char input[], bool is_user) {
-  if (context_size >= MAX_CONTEXT_SIZE) {
+  if (context_size >= MAX_CONTEXT_ARRAY_SIZE) {
     fprintf(stderr, "Context window limit has been exceeded\n");
     return ERR_UNRECOVERABLE;
   }
@@ -68,7 +76,7 @@ size_t get_prompt_response(const char api_key[], const char model[],
     return ERR_UNRECOVERABLE;
   }
 
-  char chat_ctx[MAX_BUFF_SIZE];
+  char chat_ctx[MAX_USR_SIZE];
   if (get_context(chat_ctx) == ERR_UNRECOVERABLE) {
     fprintf(stderr, "Error reading entire chat context\n");
     return ERR_UNRECOVERABLE;

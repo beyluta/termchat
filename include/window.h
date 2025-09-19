@@ -7,13 +7,13 @@
  * @struct Window
  * @brief Object containing window properties
  */
-struct Window {
+typedef struct {
   const size_t width;
   const size_t height;
   const size_t title_size;
   const char *content;
   const char *title;
-} typedef Window;
+} Window;
 
 /**
  * @brief Clears the terminal window.

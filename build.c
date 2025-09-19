@@ -3,7 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-constexpr char COMPILER[] = "clang";
+constexpr char COMPILER[] = "gcc";
 constexpr char BUILDDIR[] = "build";
 constexpr char OUTBIN[] = "build/out";
 constexpr char SRC[][BUFSIZ] = {

@@ -24,10 +24,10 @@ constexpr char HELP_TABLE[] = "+----------------+----------------------+-------"
                               "+----------------+----------------------+------"
                               "---------------------------+\n";
 
-struct Parameters {
+typedef struct {
   bool interactive_mode;
   bool help_mode;
-} typedef Parameters;
+} Parameters;
 
 static size_t get_parameters(const int argc, const char **argv,
                              Parameters *params) {
@@ -79,8 +79,9 @@ static size_t get_executable_command(const char *src, char *dest) {
 }
 
 static size_t event_loop(const char **argv, const Parameters *params) {
-  if (params->interactive_mode == true)
+  if (params->interactive_mode == true) {
     clear_chat_window();
+  }
 
   bool print_model = true;
 
@@ -202,8 +203,9 @@ static size_t event_loop(const char **argv, const Parameters *params) {
       tcsetattr(STDIN_FILENO, TCSANOW, &old_termios);
     }
 
-    if (params->interactive_mode == false)
+    if (params->interactive_mode == false) {
       return ERR_RECOVERABLE;
+    }
   }
 
   return ERR_UNRECOVERABLE;
@@ -225,5 +227,6 @@ int main(const int argc, const char **argv) {
         "Usage: ./<PROG_NAME> \"how to create a file via the terminal?\"\n");
     return ERR_UNRECOVERABLE;
   }
+
   return event_loop(argv, &params);
 }
