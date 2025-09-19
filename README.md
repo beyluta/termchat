@@ -1,6 +1,6 @@
 # TermChat
 
-Integrated A.I Chatbot inside the terminal. Programmed entirely in C.
+Integrated A.I Chatbot inside the terminal. Hand-written entirely in C.
 
 ## Prerequisites
 
@@ -16,21 +16,23 @@ These were the resources used to develop this application. The project may still
 compile and run under different environments, but this has not been tested nor
 do I guarantee that it will work.
 
-| Component | Description | Version        |
-| --------- | ----------- | -------------- |
-| C         | Language    | C23            |
-| Clang     | Compiler    | 20.1.8         |
-| Linux     | Kernel      | 6.16.7-arch1-1 |
-| Curl      | Library     | 8.16.0         |
+| Component | Description | Version |
+| --------- | ----------- | ------- |
+| C         | Language    | C23     |
+| GCC       | Compiler\*  | 15.2.1  |
+| Clang     | Compiler\*  | 20.1.8  |
+| Curl      | Library     | 8.16.0  |
 
-Build and run the executable using either of the following commands:
+_\* GCC and Clang both supported. Choose the one you are most comfortable with. You maybe change it inside the `build.c` file._
 
-```bash
-clang -std=c23 build.c && ./a.out && rm a.out
-```
+Build the project using either of the following commands:
 
 ```bash
 gcc build.c && ./a.out && rm a.out
+```
+
+```bash
+clang -std=c23 build.c && ./a.out && rm a.out
 ```
 
 A new folder `build` will be generated in the root of the project.
@@ -42,6 +44,12 @@ A new folder `build` will be generated in the root of the project.
 ├── 📂 include
 ├── 📂 src
 └── ...
+```
+
+Now you can simply execute the `build/out` binary:
+
+```bash
+./build/out "Hi, how are you?"
 ```
 
 ## Usage
@@ -56,8 +64,6 @@ Create this configuration file `~/.config/termchatrc.json`:
   "openai": "<API-Key Here>"
 }
 ```
-
-After this is done, run the binary like this:
 
 ### Normal mode
 

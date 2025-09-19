@@ -129,8 +129,8 @@ static size_t event_loop(const char **argv, const Parameters *params) {
       return ERR_UNRECOVERABLE;
     }
 
-    char prompt_input[MAX_BUFF_SIZE];
-    if (params->interactive_mode == true) {
+    char prompt_input[MAX_BUFF_SIZE] = {};
+    if (params->interactive_mode) {
       if (print_model) {
         printf("(%s)> ", model);
       }
@@ -138,10 +138,15 @@ static size_t event_loop(const char **argv, const Parameters *params) {
       fgets(prompt_input, sizeof(prompt_input), stdin);
       prompt_input[strcspn(prompt_input, "\n")] = 0;
       print_model = true;
+    } else {
+      if (snprintf(prompt_input, MAX_BUFF_SIZE, "%s", argv[1]) < 0) {
+        fprintf(stderr, "Failed to fit argument into prompt input\n");
+        return ERR_UNRECOVERABLE;
+      }
     }
 
-    const size_t input_len = strlen(prompt_input);
-    if (input_len <= 0) {
+    const size_t inputLength = strlen(prompt_input);
+    if (inputLength <= 0) {
       print_model = false;
       continue;
     }
