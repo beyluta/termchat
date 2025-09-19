@@ -6,6 +6,8 @@
 constexpr char COMPILER[] = "gcc";
 constexpr char BUILDDIR[] = "build";
 constexpr char OUTBIN[] = "build/out";
+constexpr char UPDATESUBMODULES[] =
+    "git submodule update --init --recursive --remote";
 constexpr char SRC[][BUFSIZ] = {
     "src/main.c",    "src/window.c",      "src/config.c",
     "src/globdef.c", "src/completions.c", "minimal-c-json-parser/src/json.c",
@@ -54,7 +56,8 @@ int main() {
   printc("Build directory created", term_color_green);
 
   char command[ARGSLEN];
-  auto total = snprintf(command, ARGSLEN, "%s -o %s", COMPILER, OUTBIN);
+  auto total = snprintf(command, ARGSLEN, "%s; %s -o %s", UPDATESUBMODULES,
+                        COMPILER, OUTBIN);
   if (total < 0) {
     printc("Compiler and output were unable to be set", term_color_red);
     return 1;
