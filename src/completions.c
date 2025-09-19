@@ -20,13 +20,16 @@ static size_t get_context(char dest[]) {
   for (int i = 0; i < context_size; i++) {
     const size_t contextLength = strlen(context[i]) + 1;
 
-    // This is a workaround so that we may put the context[i] into a local array
+    // If we don't memcpy this into a local array, GCC will refuse to compile
     char userContext[MAX_BUFF_SIZE];
     memcpy(userContext, context[i], MAX_BUFF_SIZE);
     userContext[MAX_CONTEXT_ARRAY_SIZE - 1] = '\0';
 
     char temp[MAX_BUFF_SIZE + 1];
-    snprintf(temp, MAX_BUFF_SIZE + 1, "%s,", userContext);
+    if (snprintf(temp, MAX_BUFF_SIZE + 1, "%s,", userContext) < 0) {
+      fprintf(stderr, "User context could not be written into temp variable\n");
+      return ERR_UNRECOVERABLE;
+    }
 
     if (contextLength >= MAX_BUFF_SIZE) {
       fprintf(stderr, "Context was bigger than maximum allowed\n");
