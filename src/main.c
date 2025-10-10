@@ -174,9 +174,14 @@ static size_t event_loop(const char **argv, const Parameters *params) {
       fprintf(stderr, "Could not capture response to window context\n");
       return ERR_UNRECOVERABLE;
     }
-
     unescape_string(content, '"');
-    const Window window = get_window_properties(content, model);
+
+    window_t window;
+    if (get_window_properties(content, model, &window) == ERR_UNRECOVERABLE) {
+      fprintf(stderr, "Could not get window properties\n");
+      return ERR_UNRECOVERABLE;
+    }
+
     draw_chat_window(window);
 
     char command[MAX_BUFF_SIZE];

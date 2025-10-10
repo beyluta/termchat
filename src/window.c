@@ -5,12 +5,21 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+/**
+ * @brief Draws the top and bottom borders of the pseudo window
+ * @param width Horizontal size of the border to draw to
+ * @returns The status of the operation
+ */
 static size_t draw_top_bottom_border_window(const int width) {
   for (int i = 0; i <= width; i++)
     printf("%c", i <= 0 || i >= width ? '+' : '-');
   return ERR_RECOVERABLE;
 }
 
+/**
+ * @brief Gets the max size of the terminal window
+ *  @returns Size of the terminal window
+ */
 static size_t get_terminal_window_size() {
   struct winsize window;
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &window) < 0) {
@@ -20,6 +29,13 @@ static size_t get_terminal_window_size() {
   return window.ws_col - 1;
 }
 
+/**
+ * @brief Draws a text inside the pseudo window
+ * @param width Horizontal size of the window
+ * @param height Vertical size of the window
+ * @param text Content to be printed to stdout
+ * @returns The status of the operation
+ */
 static size_t draw_text_window(const int width, const int height,
                                const char text[]) {
   const int window_size = get_terminal_window_size() - 2;
@@ -42,12 +58,20 @@ static size_t draw_text_window(const int width, const int height,
   return ERR_RECOVERABLE;
 }
 
+/**
+ * @brief Clears the chat window
+ * @retursn The status of the operation
+ */
 size_t clear_chat_window() {
   printf("\e[1;1H\e[2J");
   return ERR_RECOVERABLE;
 }
 
-size_t draw_chat_window(const Window window) {
+/**
+ * @brief Draws a pseudo window inside the terminal
+ * @retursn The status of the operation
+ */
+size_t draw_chat_window(const window_t window) {
   const int window_size = get_terminal_window_size();
   clear_chat_window();
   draw_top_bottom_border_window(window_size);
@@ -61,14 +85,32 @@ size_t draw_chat_window(const Window window) {
   return ERR_RECOVERABLE;
 }
 
-Window get_window_properties(const char input[], const char title[]) {
+/**
+ * @brief Draws a pseudo window inside the terminal
+ * @retursn The status of the operation
+ */
+size_t get_window_properties(const char *const input, const char *const title,
+                             window_t *dest) {
   const int window_size = get_terminal_window_size();
   const int width = strlen(input);
   const int height = (width / window_size) + 1;
-  const Window window = {.height = height,
-                         .width = width,
-                         .content = input,
-                         .title = title,
-                         .title_size = strlen(title)};
-  return window;
+
+  dest->height = height;
+  dest->width = width;
+  dest->title_size = strlen(title);
+
+  const size_t inputLen = strlen(input);
+  const size_t contentLen = strlen(title);
+
+  if (snprintf(dest->content, inputLen, "%s", input) < 0) {
+    fprintf(stderr, "Failed to move string into correct memory location\n");
+    return ERR_UNRECOVERABLE;
+  }
+
+  if (snprintf(dest->title, contentLen, "%s", title) < 0) {
+    fprintf(stderr, "Failed to move string into correct memory location\n");
+    return ERR_UNRECOVERABLE;
+  }
+
+  return ERR_RECOVERABLE;
 }

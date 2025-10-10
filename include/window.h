@@ -1,6 +1,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include "globdef.h"
 #include <stddef.h>
 
 /**
@@ -8,12 +9,12 @@
  * @brief Object containing window properties
  */
 typedef struct {
-  const size_t width;
-  const size_t height;
-  const size_t title_size;
-  const char *content;
-  const char *title;
-} Window;
+  size_t width;
+  size_t height;
+  size_t title_size;
+  char content[MAX_BUFF_SIZE];
+  char title[MAX_BUFF_SIZE];
+} window_t;
 
 /**
  * @brief Clears the terminal window.
@@ -26,13 +27,14 @@ size_t clear_chat_window();
  * @param window Properties of the window to draw
  * @return Whether the function was successful
  */
-size_t draw_chat_window(const Window window);
+size_t draw_chat_window(const window_t window);
 
 /**
  * @brief Calculate dimensions of the window with respect to context
  * @param input Context string to be rendered inside the window
  * @param title Title of the window
- * @return Object containing window properties
+ * @return The status of the operation
  */
-Window get_window_properties(const char input[], const char title[]);
+size_t get_window_properties(const char *const input, const char *const title,
+                             window_t *dest);
 #endif
