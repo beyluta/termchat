@@ -36,5 +36,5 @@ size_t draw_chat_window(const window_t window);
  * @return The status of the operation
  */
 size_t get_window_properties(const char *const input, const char *const title,
-                             window_t *dest);
+                             window_t *const dest);
 #endif

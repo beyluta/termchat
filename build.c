@@ -26,7 +26,7 @@ typedef enum : unsigned char {
   term_color_red,
 } term_color_t;
 
-static void printc(const char *src, term_color_t color) {
+static void printc(const char *const src, term_color_t color) {
   switch (color) {
   default:
   case term_color_green:
@@ -38,7 +38,7 @@ static void printc(const char *src, term_color_t color) {
   }
 }
 
-static bool ensure_dir(const char *src) {
+static bool ensure_dir(const char *const src) {
   struct stat st = {};
   if (stat(src, &st) == -1) {
     if (mkdir(src, 0700) != 0) {

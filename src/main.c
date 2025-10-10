@@ -36,8 +36,8 @@ typedef struct {
  * @param params struct which will store the state of the parameters
  * @returns The status of the operation
  */
-static size_t get_parameters(const int argc, const char **argv,
-                             Parameters *params) {
+static size_t get_parameters(const int argc, const char *const *argv,
+                             Parameters *const params) {
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--interactive") == 0) {
       params->interactive_mode = true;
@@ -54,7 +54,7 @@ static size_t get_parameters(const int argc, const char **argv,
  * @param match delimiter to look out for
  * @returns The status of the operation
  */
-static size_t unescape_string(char *input, const char match) {
+static size_t unescape_string(char *const input, const char match) {
   int length = strlen(input);
   for (int i = 0; i < length; i++) {
     if (input[i] == '\\' && i + 1 < length && input[i + 1] == match) {
@@ -72,7 +72,7 @@ static size_t unescape_string(char *input, const char match) {
  * @param dest Destination string where the substring will reside
  * @returns The status of the operation
  */
-static size_t get_executable_command(const char *src, char *dest) {
+static size_t get_executable_command(const char *const src, char *const dest) {
   const int len = strlen(src);
   int start = -1, end = -1;
   for (int i = 0; i < len; i++) {
@@ -103,7 +103,8 @@ static size_t get_executable_command(const char *src, char *dest) {
  * @param params Struct containing all parameters of the application
  * @returns The status of the operation
  */
-static size_t event_loop(const char **argv, const Parameters *params) {
+static size_t event_loop(const char *const *argv,
+                         const Parameters *const params) {
   if (params->interactive_mode == true) {
     clear_chat_window();
   }
@@ -252,7 +253,7 @@ static size_t event_loop(const char **argv, const Parameters *params) {
  * @param argv Array of strings given at the start of the program
  * @returns The status of the operation, 0 if success
  */
-int main(const int argc, const char **argv) {
+int main(const int argc, const char *const *argv) {
   Parameters params = {};
   get_parameters(argc, argv, &params);
 

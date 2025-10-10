@@ -10,7 +10,7 @@ constexpr unsigned char FILE_NOT_EXISTS = 1;
  * @param len The length of the output buffer.
  * @return 0 on success, or a non-zero error code on failure.
  */
-int get_rc_path(char output[], const int len);
+int get_rc_path(char *const output, const int len);
 
 /**
  * @brief Checks if the configuration file exists.
@@ -25,7 +25,7 @@ int get_rc_exists();
  * @param bufferLength Size of the buffer array
  * @return 0 on success, or a non-zero error code on failure.
  */
-int get_rc_contents(const char *filename, char buffer[],
+int get_rc_contents(const char *const filename, char *const buffer,
                     unsigned long bufferLength);
 
 #endif

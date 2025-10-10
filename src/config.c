@@ -14,7 +14,7 @@ constexpr unsigned char RC_FILENAME[] = "termchatrc.json";
  * @param len The length of the output buffer.
  * @return 0 on success, or a non-zero error code on failure.
  */
-int get_rc_path(char output[], const int len) {
+int get_rc_path(char *const output, const int len) {
   const char *config_dir = getenv("XDG_CONFIG_HOME");
   if (config_dir != NULL) {
     snprintf(output, len, "%s/%s", config_dir, RC_FILENAME);
@@ -55,7 +55,7 @@ int get_rc_exists() {
  * @param len The length of the output buffer.
  * @return 0 on success, or a non-zero error code on failure.
  */
-int get_rc_contents(const char *filename, char buffer[],
+int get_rc_contents(const char *const filename, char *const buffer,
                     unsigned long bufferLength) {
   FILE *file = fopen(filename, "rb");
   if (file == NULL) {

@@ -11,7 +11,8 @@
  * @param output The buffer where the extracted token will be stored.
  * @return The length of the json value
  */
-bool get_json_value(const char input[], const char key[], char output[]) {
+bool get_json_value(const char *const input, const char *const key,
+                    char *const output) {
   string_json_t json;
   status_json_t status;
   if ((status = ConvertStringToJson(input, &json) != FUNC_SUCCESS)) {

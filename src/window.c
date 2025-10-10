@@ -90,7 +90,7 @@ size_t draw_chat_window(const window_t window) {
  * @retursn The status of the operation
  */
 size_t get_window_properties(const char *const input, const char *const title,
-                             window_t *dest) {
+                             window_t *const dest) {
   const int window_size = get_terminal_window_size();
   const int width = strlen(input);
   const int height = (width / window_size) + 1;

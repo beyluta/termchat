@@ -15,7 +15,7 @@ static char context[MAX_CONTEXT_ARRAY_SIZE][MAX_BUFF_SIZE];
 static unsigned short context_size = 0;
 static unsigned long s_buff = 0;
 
-static size_t get_context(char dest[]) {
+static size_t get_context(char *const dest) {
   size_t start = 0;
   for (int i = 0; i < context_size; i++) {
     const size_t contextLength = strlen(context[i]) + 1;
@@ -43,7 +43,8 @@ static size_t get_context(char dest[]) {
   return ERR_RECOVERABLE;
 }
 
-static size_t write_func(void *ptr, size_t size, size_t nmemb, void *output) {
+static size_t write_func(void *const ptr, size_t size, size_t nmemb,
+                         void *const output) {
   const size_t totalSize = size * nmemb;
   char *outputPtr = (char *)output;
   memcpy(&outputPtr[s_buff], ptr, s_buff + totalSize);
@@ -57,7 +58,7 @@ static size_t write_func(void *ptr, size_t size, size_t nmemb, void *output) {
  * @param is_user A boolean indicating if the context is user-specific.
  * @return A static constant integer representing the result of the operation.
  */
-size_t add_context(const char input[], bool is_user) {
+size_t add_context(const char *const input, bool is_user) {
   if (context_size >= MAX_CONTEXT_ARRAY_SIZE) {
     fprintf(stderr, "Context window limit has been exceeded\n");
     return ERR_UNRECOVERABLE;
@@ -86,9 +87,10 @@ size_t add_context(const char input[], bool is_user) {
  * @param outputSize size of the buffer
  * @return Whether the function was successful
  */
-size_t get_prompt_response(const char api_key[], const char model[],
-                           const char role[], const char instruction[],
-                           const char input[], char *output) {
+size_t get_prompt_response(const char *const api_key, const char *const model,
+                           const char *const role,
+                           const char *const instruction,
+                           const char *const input, char *const output) {
   CURL *pCurl = curl_easy_init();
   if (pCurl == NULL) {
     fprintf(stderr, "Could not initialize libcurl\n");

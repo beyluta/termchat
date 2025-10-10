@@ -10,7 +10,7 @@
  * @param is_user A boolean indicating if the context is user-specific.
  * @return A static constant integer representing the result of the operation.
  */
-size_t add_context(const char input[], bool is_user);
+size_t add_context(const char *const input, bool is_user);
 
 /**
  * @brief Calls the OpenAI Completions API with the user input
@@ -24,8 +24,9 @@ size_t add_context(const char input[], bool is_user);
  * @param outputSize size of the buffer
  * @return Whether the function was successful
  */
-size_t get_prompt_response(const char api_key[], const char model[],
-                           const char role[], const char instruction[],
-                           const char input[], char output[]);
+size_t get_prompt_response(const char *const api_key, const char *const model,
+                           const char *const role,
+                           const char *const instruction,
+                           const char *const input, char *const output);
 
 #endif
