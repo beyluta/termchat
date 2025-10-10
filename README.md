@@ -71,14 +71,7 @@ Use this mode to get a one time response looking like this:
 
 ```bash
 ./termchat "Who created the C programming language?"
-```
-
-```
-+-------------------------------------------------------------------------------------------+
-| gpt-4.1                                                                                   |
-+-------------------------------------------------------------------------------------------+
-| The C programming language was created by Dennis Ritchie at Bell Labs in the early 1970s. |
-+-------------------------------------------------------------------------------------------+
+Dennis Ritchie created the C programming language.
 ```
 
 ### Interactive mode
@@ -91,19 +84,28 @@ Pass the flag `-i` to activate it.
 ```
 
 ```
-+-------------------------------------------------------------------------------------------+
-| gpt-4.1                                                                                   |
-+-------------------------------------------------------------------------------------------+
-| The C programming language was created by Dennis Ritchie at Bell Labs in the early 1970s. |
-+-------------------------------------------------------------------------------------------+
 (gpt-4.1)> Who created the C programming language?
+Dennis Ritchie created the C programming language.
+
+(gpt-4.1)> When was it?
+C was created in 1972.
+
+(gpt-4.1)> Who maintains th...
 ```
 
-### Command mode
+### Executing commands
 
-You may configure the program to execute commands between backticks in the `~/.config/termchatrc.json`.
-The program will then ask you if you would like to execute the command that the LLM
-provided. Make sure you know what you are doing. Never blindly trust an LLM.
+Write the following inside `~/.config/termchatrc.json`:
+
+```json
+{
+  ...
+  "instruction": "...Put commands between backticks e.g. `uname -a`" // Include something alike
+}
+```
+
+This will cause the program to ask for you permission to execute commands
+suggested by the LLM. Double-check what the command does before executing it.
 
 ## Flags
 
