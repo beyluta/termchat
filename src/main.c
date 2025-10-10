@@ -1,7 +1,7 @@
-#include "../include/completions.h"
-#include "../include/config.h"
-#include "../include/globdef.h"
-#include "../include/window.h"
+#include "completions.h"
+#include "config.h"
+#include "globdef.h"
+#include "utils.h"
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@ constexpr char HELP_TABLE[] = "+----------------+----------------------+-------"
 typedef struct {
   bool interactive_mode;
   bool help_mode;
-} Parameters;
+} term_params_t;
 
 /**
  * @brief Get the state of the parameters inside a struct
@@ -37,7 +37,7 @@ typedef struct {
  * @returns The status of the operation
  */
 static size_t get_parameters(const int argc, const char *const *argv,
-                             Parameters *const params) {
+                             term_params_t *const params) {
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--interactive") == 0) {
       params->interactive_mode = true;
@@ -98,15 +98,61 @@ static size_t get_executable_command(const char *const src, char *const dest) {
 }
 
 /**
+ * @brief Searches and executes the first instance of a command inside the src
+ * string. A command is defined as being any substring between two backticks
+ * (e.g. `mkdir build`)
+ *
+ * @param src The source string containing the command within
+ * @param model String containing the name of the LLM model
+ */
+static size_t process_string_command(const char *const src,
+                                     const char *const model) {
+  char command[MAX_BUFF_SIZE];
+  if (get_executable_command(src, command) == ERR_RECOVERABLE) {
+
+    term_string_t string;
+    merge_strings(&string, 4, "> ", model,
+                  " would like to execute (Y/n): ", command);
+    term_print_color(string, term_color_red);
+
+    // Process the next keypress without needing to press enter
+    struct termios old_termios, new_termios;
+    tcgetattr(STDIN_FILENO, &old_termios);
+    new_termios = old_termios;
+    new_termios.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+
+    const char next_char = getchar();
+    if (next_char == 'y' || next_char == 'Y') {
+      FILE *file = popen(command, "r");
+      if (file == nullptr) {
+        fprintf(stderr, "Failed to execute command\n");
+        return ERR_UNRECOVERABLE;
+      }
+      char output[MAX_BUFF_SIZE];
+      while (fgets(output, MAX_BUFF_SIZE, file) != NULL) {
+        printf("%s", output);
+      }
+      pclose(file);
+    }
+
+    // Reverting the changes made to the terminal above
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_termios);
+  }
+
+  return ERR_RECOVERABLE;
+}
+
+/**
  * @brief Event loop of the entire application if started with the '-i' flag
  * @param argv Array of string arguments
  * @param params Struct containing all parameters of the application
  * @returns The status of the operation
  */
 static size_t event_loop(const char *const *argv,
-                         const Parameters *const params) {
+                         const term_params_t *const params) {
   if (params->interactive_mode == true) {
-    clear_chat_window();
+    printf("\e[1;1H\e[2J");
   }
 
   bool print_model = true;
@@ -200,43 +246,24 @@ static size_t event_loop(const char *const *argv,
       fprintf(stderr, "Could not capture response to window context\n");
       return ERR_UNRECOVERABLE;
     }
-    unescape_string(content, '"');
 
-    window_t window;
-    if (get_window_properties(content, model, &window) == ERR_UNRECOVERABLE) {
-      fprintf(stderr, "Could not get window properties\n");
+    if (unescape_string(content, '"') == ERR_UNRECOVERABLE) {
+      fprintf(stderr, "Failed to unescape string\n");
       return ERR_UNRECOVERABLE;
     }
 
-    draw_chat_window(window);
+    term_string_t printableString = {.length = 0};
 
-    char command[MAX_BUFF_SIZE];
-    if (get_executable_command(content, command) == ERR_RECOVERABLE) {
-      printf("> %s would like to execute (Y/n): %s\n", model, command);
+    if (merge_strings(&printableString, 2, content, "\n") ==
+        ERR_UNRECOVERABLE) {
+      fprintf(stderr, "Could not merge content string and newline\n");
+      return ERR_UNRECOVERABLE;
+    }
+    term_print_color(printableString, term_color_green);
 
-      // Here we need to modify the parameters of the current terminal so that
-      // our next input can be processed without the need to press the enter key
-      struct termios old_termios, new_termios;
-      tcgetattr(STDIN_FILENO, &old_termios);
-      new_termios = old_termios;
-      new_termios.c_lflag &= ~(ICANON | ECHO);
-      tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
-
-      const char next_char = getchar();
-      if (next_char == 'y' || next_char == 'Y') {
-        FILE *file = popen(command, "r");
-        if (file == nullptr) {
-          fprintf(stderr, "Failed to execute command\n");
-        }
-        char output[MAX_BUFF_SIZE];
-        while (fgets(output, MAX_BUFF_SIZE, file) != NULL) {
-          printf("%s", output);
-        }
-        pclose(file);
-      }
-
-      // Reverting the changes made to the terminal above
-      tcsetattr(STDIN_FILENO, TCSANOW, &old_termios);
+    if (process_string_command(content, model) == ERR_UNRECOVERABLE) {
+      fprintf(stderr, "Could not process command\n");
+      return ERR_UNRECOVERABLE;
     }
 
     if (params->interactive_mode == false) {
@@ -254,7 +281,7 @@ static size_t event_loop(const char *const *argv,
  * @returns The status of the operation, 0 if success
  */
 int main(const int argc, const char *const *argv) {
-  Parameters params = {};
+  term_params_t params = {};
   get_parameters(argc, argv, &params);
 
   if (params.help_mode == true) {

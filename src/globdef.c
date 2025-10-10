@@ -1,4 +1,4 @@
-#include "../include/globdef.h"
+#include "globdef.h"
 #include <json.h>
 
 /**

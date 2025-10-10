@@ -1,5 +1,5 @@
-#include "../include/config.h"
-#include "../include/globdef.h"
+#include "config.h"
+#include "globdef.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

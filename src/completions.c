@@ -1,5 +1,5 @@
-#include "../include/completions.h"
-#include "../include/globdef.h"
+#include "completions.h"
+#include "globdef.h"
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <stdio.h>

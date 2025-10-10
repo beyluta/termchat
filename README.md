@@ -32,7 +32,7 @@ gcc build.c && ./a.out && rm a.out
 ```
 
 ```bash
-clang -std=c23 build.c && ./a.out && rm a.out
+clang -std=gnu23 build.c && ./a.out && rm a.out
 ```
 
 A new folder `build` will be generated in the root of the project.
