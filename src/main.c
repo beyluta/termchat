@@ -29,6 +29,13 @@ typedef struct {
   bool help_mode;
 } Parameters;
 
+/**
+ * @brief Get the state of the parameters inside a struct
+ * @param argc Count of arguments the program started with
+ * @param argv Array of arguments
+ * @param params struct which will store the state of the parameters
+ * @returns The status of the operation
+ */
 static size_t get_parameters(const int argc, const char **argv,
                              Parameters *params) {
   for (int i = 0; i < argc; i++) {
@@ -41,6 +48,12 @@ static size_t get_parameters(const int argc, const char **argv,
   return ERR_RECOVERABLE;
 }
 
+/**
+ * @brief Unescape a string passed by argument
+ * @param input String to unescape
+ * @param match delimiter to look out for
+ * @returns The status of the operation
+ */
 static size_t unescape_string(char *input, const char match) {
   int length = strlen(input);
   for (int i = 0; i < length; i++) {
@@ -53,6 +66,12 @@ static size_t unescape_string(char *input, const char match) {
   return ERR_RECOVERABLE;
 }
 
+/**
+ * @brief Get a substring inside a string into the dest pointer
+ * @param src Source string which contains the entire content
+ * @param dest Destination string where the substring will reside
+ * @returns The status of the operation
+ */
 static size_t get_executable_command(const char *src, char *dest) {
   const int len = strlen(src);
   int start = -1, end = -1;
@@ -78,6 +97,12 @@ static size_t get_executable_command(const char *src, char *dest) {
   return ERR_RECOVERABLE;
 }
 
+/**
+ * @brief Event loop of the entire application if started with the '-i' flag
+ * @param argv Array of string arguments
+ * @param params Struct containing all parameters of the application
+ * @returns The status of the operation
+ */
 static size_t event_loop(const char **argv, const Parameters *params) {
   if (params->interactive_mode == true) {
     clear_chat_window();
@@ -221,6 +246,12 @@ static size_t event_loop(const char **argv, const Parameters *params) {
   return ERR_UNRECOVERABLE;
 }
 
+/**
+ * @brief Entry point of the application
+ * @param argc Number of arguments given at the start of the program
+ * @param argv Array of strings given at the start of the program
+ * @returns The status of the operation, 0 if success
+ */
 int main(const int argc, const char **argv) {
   Parameters params = {};
   get_parameters(argc, argv, &params);

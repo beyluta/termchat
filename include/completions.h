@@ -13,15 +13,6 @@
 size_t add_context(const char input[], bool is_user);
 
 /**
- * @brief Gets a specific value from a JSON object
- * @param input JSON string
- * @param key key of the desired value
- * @param output pointer to the array of chars
- * @return Whether the function was successful
- */
-bool get_json_value(const char input[], const char key[], char output[]);
-
-/**
  * @brief Calls the OpenAI Completions API with the user input
  * @param api_key OpenAI generated api key
  * @param model GPT model to use

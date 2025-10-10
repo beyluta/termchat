@@ -51,6 +51,12 @@ static size_t write_func(void *ptr, size_t size, size_t nmemb, void *output) {
   return totalSize;
 }
 
+/**
+ * @brief Adds context based on the provided input.
+ * @param input The input string to process.
+ * @param is_user A boolean indicating if the context is user-specific.
+ * @return A static constant integer representing the result of the operation.
+ */
 size_t add_context(const char input[], bool is_user) {
   if (context_size >= MAX_CONTEXT_ARRAY_SIZE) {
     fprintf(stderr, "Context window limit has been exceeded\n");
@@ -65,6 +71,21 @@ size_t add_context(const char input[], bool is_user) {
   return ERR_RECOVERABLE;
 }
 
+/**
+ * @brief Makes a call to the OpenAI completions API and receives the response
+ * of the LLM. The ouput is saved to the argument of the same name and contains
+ * the raw text context of the reply.
+ *
+ * @param api_key OpenAI generated api key
+ * @param model GPT model to use
+ * @param role Role of the LLM: 'system' | 'user' | 'developer' | 'tool' |
+ * 'assistant'
+ * @param instruction instruction on what the LLM should do
+ * @param input user input
+ * @param output output buffer to be written to
+ * @param outputSize size of the buffer
+ * @return Whether the function was successful
+ */
 size_t get_prompt_response(const char api_key[], const char model[],
                            const char role[], const char instruction[],
                            const char input[], char *output) {

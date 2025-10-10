@@ -6,6 +6,14 @@
 
 constexpr unsigned char RC_FILENAME[] = "termchatrc.json";
 
+/**
+ * @brief Gets the path where the configuration file for the program lives. The
+ * default path should always be `/home/__USER__/.config/termchatrc.json`
+ *
+ * @param output A character array to store the resulting path.
+ * @param len The length of the output buffer.
+ * @return 0 on success, or a non-zero error code on failure.
+ */
 int get_rc_path(char output[], const int len) {
   const char *config_dir = getenv("XDG_CONFIG_HOME");
   if (config_dir != NULL) {
@@ -22,6 +30,14 @@ int get_rc_path(char output[], const int len) {
   return ERR_RECOVERABLE;
 }
 
+/**
+ * @brief Searches if the `termchatrc` file exists under
+ * `/home/__USER__/.config`
+ *
+ * @param output A character array to store the resulting path.
+ * @param len The length of the output buffer.
+ * @return 0 on success, or a non-zero error code on failure.
+ */
 int get_rc_exists() {
   char filepath[MAX_BUFF_SIZE];
   if (get_rc_path(filepath, sizeof(filepath)) == ERR_UNRECOVERABLE) {
@@ -31,6 +47,14 @@ int get_rc_exists() {
   return access(filepath, F_OK) != 0;
 }
 
+/**
+ * @brief Opens and reads the entire content of the `termchatrc` file into a
+ * buffer.
+ *
+ * @param output A character array to store the resulting path.
+ * @param len The length of the output buffer.
+ * @return 0 on success, or a non-zero error code on failure.
+ */
 int get_rc_contents(const char *filename, char buffer[],
                     unsigned long bufferLength) {
   FILE *file = fopen(filename, "rb");
