@@ -206,7 +206,7 @@ cleanup:
     curl_slist_free_all(pHeaders);
   }
 
-  if (pCurl == nullptr) {
+  if (pCurl != nullptr) {
     curl_easy_cleanup(pCurl);
   }
   return status;
