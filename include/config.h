@@ -1,8 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-constexpr unsigned char FILE_EXISTS = 0;
-constexpr unsigned char FILE_NOT_EXISTS = 1;
+#include <stdint.h>
+
+constexpr uint8_t FILE_EXISTS = 0;
+constexpr uint8_t FILE_NOT_EXISTS = 1;
 
 /**
  * @brief Retrieves the path to the configuration file.

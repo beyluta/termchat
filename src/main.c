@@ -2,6 +2,7 @@
 #include "config.h"
 #include "globdef.h"
 #include "utils.h"
+#include <stdint.h>
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,20 +10,21 @@
 #include <termios.h>
 #include <unistd.h>
 
-constexpr unsigned char COMMAND_MIN_LEN = 2;
-constexpr char COMMAND_DELIMITER = '`';
-constexpr char HELP_TABLE[] = "+----------------+----------------------+-------"
-                              "--------------------------+\n"
-                              "| Short-form     | Long-form            | "
-                              "Purpose                         |\n"
-                              "+----------------+----------------------+------"
-                              "---------------------------+\n"
-                              "| -i             | --interactive        | "
-                              "Enters interactive mode         |\n"
-                              "| -h             | --help               | Shows "
-                              "a table with all commands |\n"
-                              "+----------------+----------------------+------"
-                              "---------------------------+\n";
+constexpr uint8_t COMMAND_MIN_LEN = 2;
+constexpr uint8_t COMMAND_DELIMITER = '`';
+constexpr uint8_t HELP_TABLE[] =
+    "+----------------+----------------------+-------"
+    "--------------------------+\n"
+    "| Short-form     | Long-form            | "
+    "Purpose                         |\n"
+    "+----------------+----------------------+------"
+    "---------------------------+\n"
+    "| -i             | --interactive        | "
+    "Enters interactive mode         |\n"
+    "| -h             | --help               | Shows "
+    "a table with all commands |\n"
+    "+----------------+----------------------+------"
+    "---------------------------+\n";
 
 typedef struct {
   bool interactive_mode;

@@ -2,11 +2,12 @@
 #define GLOBDEF_H
 
 #include <stddef.h>
+#include <stdint.h>
 
-constexpr unsigned char ERR_UNRECOVERABLE = 1;
-constexpr unsigned char ERR_RECOVERABLE = 0;
-constexpr unsigned short MAX_BUFF_SIZE = 65535;
-constexpr short MAX_USR_SIZE = 32767;
+constexpr uint8_t ERR_UNRECOVERABLE = 1;
+constexpr uint8_t ERR_RECOVERABLE = 0;
+constexpr uint16_t MAX_BUFF_SIZE = 65535;
+constexpr int16_t MAX_USR_SIZE = 32767;
 
 /**
  * @brief Get the value of a JSON object via its key
