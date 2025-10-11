@@ -2,6 +2,7 @@
 #include "config.h"
 #include "globdef.h"
 #include "utils.h"
+#include <signal.h>
 #include <stdint.h>
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -30,6 +31,8 @@ typedef struct {
   bool interactive_mode;
   bool help_mode;
 } term_params_t;
+
+static volatile bool g_keep_alive = true;
 
 /**
  * @brief Get the state of the parameters inside a struct
@@ -111,7 +114,6 @@ static size_t process_string_command(const char *const src,
                                      const char *const model) {
   char command[MAX_BUFF_SIZE];
   if (get_executable_command(src, command) == ERR_RECOVERABLE) {
-
     term_string_t string;
     merge_strings(&string, 4, "> ", model,
                   " would like to execute (Y/n): ", command);
@@ -146,6 +148,21 @@ static size_t process_string_command(const char *const src,
 }
 
 /**
+ * @brief Clears the terminal window
+ */
+static void clear_terminal() { printf("\e[1;1H\e[2J"); }
+
+/**
+ * @brief Used to detect when a signal interrupt is sent
+ * @param int Number of the signal received
+ */
+static void on_sigint_received(int) {
+  g_keep_alive = false;
+  clear_terminal();
+  exit(0);
+}
+
+/**
  * @brief Event loop of the entire application if started with the '-i' flag
  * @param argv Array of string arguments
  * @param params Struct containing all parameters of the application
@@ -154,12 +171,12 @@ static size_t process_string_command(const char *const src,
 static size_t event_loop(const char *const *argv,
                          const term_params_t *const params) {
   if (params->interactive_mode == true) {
-    printf("\e[1;1H\e[2J");
+    signal(SIGINT, on_sigint_received);
   }
 
   bool print_model = true;
 
-  for (;;) {
+  while (g_keep_alive) {
     char filepath[MAX_BUFF_SIZE];
     if (get_rc_path(filepath, MAX_BUFF_SIZE) == ERR_UNRECOVERABLE) {
       fprintf(stderr, "Failed to get config file directory\n");
