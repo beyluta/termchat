@@ -163,6 +163,19 @@ static void on_sigint_received(int) {
 }
 
 /**
+ * @brief Get the next line from stdin
+ * @param dest Destination pointer where the string will be saved
+ */
+static size_t get_next_line(char *const dest, const size_t len) {
+  if (fgets(dest, len, stdin) == nullptr) {
+    fprintf(stderr, "Failed to read next line\n");
+    return ERR_UNRECOVERABLE;
+  }
+  dest[strcspn(dest, "\n")] = 0;
+  return ERR_RECOVERABLE;
+}
+
+/**
  * @brief Event loop of the entire application if started with the '-i' flag
  * @param argv Array of string arguments
  * @param params Struct containing all parameters of the application
@@ -225,8 +238,11 @@ static size_t event_loop(const char *const *argv,
         printf("(%s)> ", model);
       }
 
-      fgets(prompt_input, sizeof(prompt_input), stdin);
-      prompt_input[strcspn(prompt_input, "\n")] = 0;
+      if (get_next_line(prompt_input, MAX_BUFF_SIZE)) {
+        fprintf(stderr, "Failed to put next line into buffer\n");
+        return ERR_UNRECOVERABLE;
+      }
+
       print_model = true;
     } else {
       if (snprintf(prompt_input, MAX_BUFF_SIZE, "%s", argv[1]) < 0) {
