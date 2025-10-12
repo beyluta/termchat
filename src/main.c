@@ -175,51 +175,50 @@ static size_t event_loop(const char *const *argv,
   }
 
   bool print_model = true;
+  char filepath[MAX_BUFF_SIZE];
+
+  if (get_rc_path(filepath, MAX_BUFF_SIZE) == ERR_UNRECOVERABLE) {
+    fprintf(stderr, "Failed to get config file directory\n");
+    return ERR_UNRECOVERABLE;
+  }
+
+  if (get_rc_exists() == FILE_NOT_EXISTS) {
+    fprintf(stderr, "Could not find rc file at %s\n", filepath);
+    return ERR_UNRECOVERABLE;
+  }
+
+  char config[MAX_BUFF_SIZE];
+  if (get_rc_contents(filepath, config, sizeof(config)) == ERR_UNRECOVERABLE) {
+    fprintf(stderr, "Failed to get config file contents\n");
+    return ERR_UNRECOVERABLE;
+  }
+
+  char api_key[MAX_BUFF_SIZE];
+  if (get_json_value(config, "openai", api_key) <= 0) {
+    fprintf(stderr, "Failed to get the api key from the config file\n");
+    return ERR_UNRECOVERABLE;
+  }
+
+  char model[MAX_BUFF_SIZE];
+  const int model_size = get_json_value(config, "model", model);
+  if (model_size <= 0) {
+    fprintf(stderr, "Failed to get gpt model from config file\n");
+    return ERR_UNRECOVERABLE;
+  }
+
+  char role[MAX_BUFF_SIZE];
+  if (get_json_value(config, "role", role) <= 0) {
+    fprintf(stderr, "Failed to get role from config file\n");
+    return ERR_UNRECOVERABLE;
+  }
+
+  char instruction[MAX_BUFF_SIZE];
+  if (get_json_value(config, "instruction", instruction) <= 0) {
+    fprintf(stderr, "Failed to get instruction from config file\n");
+    return ERR_UNRECOVERABLE;
+  }
 
   while (g_keep_alive) {
-    char filepath[MAX_BUFF_SIZE];
-    if (get_rc_path(filepath, MAX_BUFF_SIZE) == ERR_UNRECOVERABLE) {
-      fprintf(stderr, "Failed to get config file directory\n");
-      return ERR_UNRECOVERABLE;
-    }
-
-    if (get_rc_exists() == FILE_NOT_EXISTS) {
-      fprintf(stderr, "Could not find rc file at %s\n", filepath);
-      return ERR_UNRECOVERABLE;
-    }
-
-    char config[MAX_BUFF_SIZE];
-    if (get_rc_contents(filepath, config, sizeof(config)) ==
-        ERR_UNRECOVERABLE) {
-      fprintf(stderr, "Failed to get config file contents\n");
-      return ERR_UNRECOVERABLE;
-    }
-
-    char api_key[MAX_BUFF_SIZE];
-    if (get_json_value(config, "openai", api_key) <= 0) {
-      fprintf(stderr, "Failed to get the api key from the config file\n");
-      return ERR_UNRECOVERABLE;
-    }
-
-    char model[MAX_BUFF_SIZE];
-    const int model_size = get_json_value(config, "model", model);
-    if (model_size <= 0) {
-      fprintf(stderr, "Failed to get gpt model from config file\n");
-      return ERR_UNRECOVERABLE;
-    }
-
-    char role[MAX_BUFF_SIZE];
-    if (get_json_value(config, "role", role) <= 0) {
-      fprintf(stderr, "Failed to get role from config file\n");
-      return ERR_UNRECOVERABLE;
-    }
-
-    char instruction[MAX_BUFF_SIZE];
-    if (get_json_value(config, "instruction", instruction) <= 0) {
-      fprintf(stderr, "Failed to get instruction from config file\n");
-      return ERR_UNRECOVERABLE;
-    }
-
     char prompt_input[MAX_BUFF_SIZE] = {};
     if (params->interactive_mode) {
       if (print_model) {
