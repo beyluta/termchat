@@ -111,10 +111,10 @@ suggested by the LLM. Double-check what the command does before executing it.
 
 The following flags can be used when starting the program.
 
-| Short-form | Long-form     | Purpose                                  |
-| ---------- | ------------- | ---------------------------------------- |
-| -i         | --interactive | Starts the program in interactive mode   |
-| -h         | --help        | Shows a table with all flags and options |
+| Short-form | Purpose                                  |
+| ---------- | ---------------------------------------- |
+| -i         | Starts the program in interactive mode   |
+| -h         | Shows a table with all flags and options |
 
 ## Acknowledgements
 

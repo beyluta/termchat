@@ -11,46 +11,67 @@
 #include <termios.h>
 #include <unistd.h>
 
+constexpr uint8_t ARG_FLAG_POSITION = 1;
 constexpr uint8_t COMMAND_MIN_LEN = 2;
 constexpr uint8_t COMMAND_DELIMITER = '`';
 constexpr uint8_t HELP_TABLE[] =
-    "+----------------+----------------------+-------"
-    "--------------------------+\n"
-    "| Short-form     | Long-form            | "
-    "Purpose                         |\n"
-    "+----------------+----------------------+------"
-    "---------------------------+\n"
-    "| -i             | --interactive        | "
-    "Enters interactive mode         |\n"
-    "| -h             | --help               | Shows "
-    "a table with all commands |\n"
-    "+----------------+----------------------+------"
-    "---------------------------+\n";
+    "+----------------+---------------------------------+\n"
+    "| Short-form     | Purpose                         |\n"
+    "+----------------+---------------------------------+\n"
+    "| -i             | Enters interactive mode         |\n"
+    "| -h             | Shows a table with all commands |\n"
+    "+----------------+---------------------------------+\n";
 
 typedef struct {
   bool interactive_mode;
   bool help_mode;
 } term_params_t;
 
+typedef enum : uint8_t {
+  term_flag_none,
+  term_flag_help,
+  term_flag_interactive
+} term_flag_t;
+
 static volatile bool g_keep_alive = true;
+
+/**
+ * @brief Get the code for the specific parameter
+ * @param src The name of the parameter
+ * @returns The code of the argument passed by string
+ */
+static term_flag_t get_flag_code(const char *const src) {
+  term_flag_t status = term_flag_none;
+  status = strcmp(src, "-i") == 0 ? term_flag_interactive : status;
+  status = strcmp(src, "-h") == 0 ? term_flag_help : status;
+  return status;
+}
 
 /**
  * @brief Get the state of the parameters inside a struct
  * @param argc Count of arguments the program started with
  * @param argv Array of arguments
  * @param params struct which will store the state of the parameters
- * @returns The status of the operation
  */
-static size_t get_parameters(const int argc, const char *const *argv,
-                             term_params_t *const params) {
-  for (int i = 0; i < argc; i++) {
-    if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--interactive") == 0) {
-      params->interactive_mode = true;
-    } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-      params->help_mode = true;
-    }
+static void get_parameters(const int argc, const char *const *argv,
+                           term_params_t *const params) {
+  if (argc <= ARG_FLAG_POSITION) {
+    return;
   }
-  return ERR_RECOVERABLE;
+
+  const char *const param = argv[ARG_FLAG_POSITION];
+  const term_flag_t argument = get_flag_code(param);
+  switch (argument) {
+  default:
+  case term_flag_none:
+    break;
+  case term_flag_help:
+    params->help_mode = true;
+    break;
+  case term_flag_interactive:
+    params->interactive_mode = true;
+    break;
+  }
 }
 
 /**
@@ -324,7 +345,7 @@ int main(const int argc, const char *const *argv) {
   }
 
   if (argc < 2 && params.interactive_mode == false) {
-    fprintf(stderr, "Error: Invalid arguments.\n");
+    term_print_color_char("Error: Invalid arguments.", term_color_red);
     fprintf(
         stderr,
         "Usage: ./<PROG_NAME> \"how to create a file via the terminal?\"\n");
