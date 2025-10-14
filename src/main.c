@@ -42,8 +42,8 @@ static volatile bool g_keep_alive = true;
  */
 static term_flag_t get_flag_code(const char *const src) {
   term_flag_t status = term_flag_none;
-  status = strcmp(src, "-i") == 0 ? term_flag_interactive : status;
-  status = strcmp(src, "-h") == 0 ? term_flag_help : status;
+  status += !!(strcmp(src, "-i") == 0) * term_flag_interactive;
+  status += !!(strcmp(src, "-h") == 0) * term_flag_help;
   return status;
 }
 
@@ -64,6 +64,7 @@ static void get_parameters(const int argc, const char *const *argv,
   switch (argument) {
   default:
   case term_flag_none:
+    // No need to do anything here; just process the prompt normally
     break;
   case term_flag_help:
     params->help_mode = true;
