@@ -22,7 +22,7 @@ static volatile bool g_request_pending = false;
 typedef struct {
   CURL *curl;
   CURLcode code;
-} rest_thread_info_t;
+} request_info_t;
 
 /**
  * @brief Get the entire chat context from the current session
@@ -96,11 +96,17 @@ size_t add_context(const char *const input, bool is_user) {
 }
 
 /**
+ * @brief Get the timestamp of the current date
+ * @returns The timestamp in seconds, or -1 on error
+ */
+static ssize_t date_now() { return (unsigned long)time(nullptr); }
+
+/**
  * @brief Thread that will take care of processing the Rest API request
  * @param src The arguments of the function
  */
 static void *on_request_processing(void *src) {
-  rest_thread_info_t *info = (rest_thread_info_t *)src;
+  request_info_t *info = (request_info_t *)src;
   if ((info->code = curl_easy_perform(info->curl)) != CURLE_OK) {
     fprintf(stderr, "Request failed from another thread\n");
   }
@@ -213,24 +219,45 @@ size_t get_prompt_response(const char *const api_key, const char *const model,
     goto cleanup;
   }
 
-  // if ((status = curl_easy_perform(pCurl)) != CURLE_OK) {
-  //   fprintf(stderr, "Request failed or could not be sent to the endpoint\n");
-  //   status = ERR_UNRECOVERABLE;
-  //   goto cleanup;
-  // }
-
   g_request_pending = true;
-  rest_thread_info_t info = {
+  request_info_t info = {
       .code = status,
       .curl = pCurl,
   };
   pthread_t thread;
-  pthread_create(&thread, nullptr, on_request_processing, &info);
+  if (pthread_create(&thread, nullptr, on_request_processing, &info) != 0) {
+    fprintf(stderr, "Failed to create new thread\n");
+    goto cleanup;
+  }
+
+  ssize_t timestamp = date_now();
+  if (timestamp < 0) {
+    fprintf(stderr, "Timestamp could not be fetched outside while\n");
+    goto cleanup;
+  }
 
   while (g_request_pending) {
-    printf(".");
+    const ssize_t currentTime = date_now();
+    if (currentTime < 0) {
+      fprintf(stderr, "Timestamp failed while request was pending\n");
+      goto cleanup;
+    }
+
+    if (currentTime >= timestamp) {
+      printf(".");
+      if (fflush(stdout) != 0) {
+        fprintf(stderr, "Failed to write unwritten bytes to stdout\n");
+        goto cleanup;
+      }
+      timestamp = currentTime + 1;
+    }
   }
   printf("\n");
+
+  if (info.code != CURLE_OK) {
+    fprintf(stderr, "Request failed or could not be sent to the endpoint\n");
+    goto cleanup;
+  }
 
   output[s_buff] = '\0';
   s_buff = 0;
