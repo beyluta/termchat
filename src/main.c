@@ -206,6 +206,7 @@ static size_t get_next_line(char *const dest, const size_t len) {
 static size_t event_loop(const char *const *argv,
                          const term_params_t *const params) {
   if (params->interactive_mode == true) {
+    clear_terminal();
     signal(SIGINT, on_sigint_received);
   }
 
