@@ -2,6 +2,7 @@
 #include "globdef.h"
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,6 +16,13 @@ constexpr uint8_t MAX_CONTEXT_ARRAY_SIZE = 255;
 static char context[MAX_CONTEXT_ARRAY_SIZE][MAX_BUFF_SIZE];
 static uint16_t context_size = 0;
 static size_t s_buff = 0;
+
+static volatile bool g_request_pending = false;
+
+typedef struct {
+  CURL *curl;
+  CURLcode code;
+} rest_thread_info_t;
 
 /**
  * @brief Get the entire chat context from the current session
@@ -85,6 +93,19 @@ size_t add_context(const char *const input, bool is_user) {
   memcpy(context[context_size], temp, MAX_BUFF_SIZE);
   context[context_size++][MAX_BUFF_SIZE - 1] = '\0';
   return ERR_RECOVERABLE;
+}
+
+/**
+ * @brief Thread that will take care of processing the Rest API request
+ * @param src The arguments of the function
+ */
+static void *on_request_processing(void *src) {
+  rest_thread_info_t *info = (rest_thread_info_t *)src;
+  if ((info->code = curl_easy_perform(info->curl)) != CURLE_OK) {
+    fprintf(stderr, "Request failed from another thread\n");
+  }
+  g_request_pending = false;
+  return nullptr;
 }
 
 /**
@@ -192,11 +213,24 @@ size_t get_prompt_response(const char *const api_key, const char *const model,
     goto cleanup;
   }
 
-  if ((status = curl_easy_perform(pCurl)) != CURLE_OK) {
-    fprintf(stderr, "Request failed or could not be sent to the endpoint\n");
-    status = ERR_UNRECOVERABLE;
-    goto cleanup;
+  // if ((status = curl_easy_perform(pCurl)) != CURLE_OK) {
+  //   fprintf(stderr, "Request failed or could not be sent to the endpoint\n");
+  //   status = ERR_UNRECOVERABLE;
+  //   goto cleanup;
+  // }
+
+  g_request_pending = true;
+  rest_thread_info_t info = {
+      .code = status,
+      .curl = pCurl,
+  };
+  pthread_t thread;
+  pthread_create(&thread, nullptr, on_request_processing, &info);
+
+  while (g_request_pending) {
+    printf(".");
   }
+  printf("\n");
 
   output[s_buff] = '\0';
   s_buff = 0;
