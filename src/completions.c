@@ -260,6 +260,7 @@ size_t get_prompt_response(const char *const api_key, const char *const model,
 
   if (info.code != CURLE_OK) {
     fprintf(stderr, "Request failed or could not be sent to the endpoint\n");
+    status = ERR_UNRECOVERABLE;
     goto cleanup;
   }
 
