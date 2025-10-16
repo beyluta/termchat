@@ -33,6 +33,11 @@ typedef enum : uint8_t {
   term_flag_interactive
 } term_flag_t;
 
+typedef enum : uint8_t {
+  term_code_newline = 10,
+  term_code_space = 32
+} term_code_t;
+
 static volatile bool g_keep_alive = true;
 
 /**
@@ -125,6 +130,22 @@ static size_t get_executable_command(const char *const src, char *const dest) {
 }
 
 /**
+ * @brief Replaces all instances of a char with another in a string
+ * @param string String to analyse and modify
+ * @param target The char that should be replaced
+ * @param repalce The new char to be inserted
+ */
+static void replace_chars_in_string(term_string_t *const string,
+                                    const term_code_t target,
+                                    const term_code_t replace) {
+  for (size_t i = 0; i < string->length; i++) {
+    if (string->text[i] == target) {
+      string->text[i] = replace;
+    }
+  }
+}
+
+/**
  * @brief Searches and executes the first instance of a command inside the src
  * string. A command is defined as being any substring between two backticks
  * (e.g. `mkdir build`)
@@ -150,15 +171,30 @@ static size_t process_string_command(const char *const src,
 
     const char next_char = getchar();
     if (next_char == 'y' || next_char == 'Y') {
-      FILE *file = popen(command, "r");
-      if (file == nullptr) {
+      FILE *file = nullptr;
+      if ((file = popen(command, "r")) == nullptr) {
         fprintf(stderr, "Failed to execute command\n");
         return ERR_UNRECOVERABLE;
       }
+
       char output[MAX_BUFF_SIZE];
       while (fgets(output, MAX_BUFF_SIZE, file) != NULL) {
         printf("%s", output);
       }
+
+      term_string_t str = {.length = 0};
+      if (merge_strings(&str, 2, "Resource:", output) == ERR_UNRECOVERABLE) {
+        fprintf(stderr, "Failed to merge resource with command string\n");
+        return ERR_UNRECOVERABLE;
+      }
+
+      replace_chars_in_string(&str, term_code_newline, term_code_space);
+
+      if (add_context(str.text, role_type_developer) == ERR_UNRECOVERABLE) {
+        fprintf(stderr, "Command could not be added to context history\n");
+        return ERR_UNRECOVERABLE;
+      }
+
       pclose(file);
     }
 
@@ -299,7 +335,7 @@ static size_t event_loop(const char *const *argv,
       return ERR_UNRECOVERABLE;
     }
 
-    if (add_context(content, false) == ERR_UNRECOVERABLE) {
+    if (add_context(content, role_type_assistant) == ERR_UNRECOVERABLE) {
       fprintf(stderr, "Could not capture response to window context\n");
       return ERR_UNRECOVERABLE;
     }

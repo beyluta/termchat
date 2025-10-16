@@ -3,14 +3,21 @@
 #define COMPLETIONS_H
 
 #include <stddef.h>
+#include <stdint.h>
+
+typedef enum : uint8_t {
+  role_type_user,
+  role_type_assistant,
+  role_type_developer
+} role_type_t;
 
 /**
  * @brief Adds context based on the provided input.
  * @param input The input string to process.
- * @param is_user A boolean indicating if the context is user-specific.
+ * @param role_type Role of the current message
  * @return A static constant integer representing the result of the operation.
  */
-size_t add_context(const char *const input, bool is_user);
+size_t add_context(const char *const input, role_type_t role_type);
 
 /**
  * @brief Calls the OpenAI Completions API with the user input

@@ -7,22 +7,59 @@
 #include <stdio.h>
 #include <string.h>
 
-constexpr uint8_t ENDPOINT_COMPLETIONS[] =
+static constexpr uint8_t ENDPOINT_COMPLETIONS[] =
     "https://api.openai.com/v1/chat/completions";
-constexpr uint8_t ROLE_USER[] = "user";
-constexpr uint8_t ROLE_ASSISTANT[] = "assistant";
-constexpr uint8_t MAX_CONTEXT_ARRAY_SIZE = 255;
-
+static constexpr uint8_t MAX_CONTEXT_ARRAY_SIZE = 255;
 static char context[MAX_CONTEXT_ARRAY_SIZE][MAX_BUFF_SIZE];
 static uint16_t context_size = 0;
 static size_t s_buff = 0;
-
 static volatile bool g_request_pending = false;
 
 typedef struct {
   CURL *curl;
   CURLcode code;
 } request_info_t;
+
+typedef struct {
+  size_t length;
+  char string[MAX_BUFF_SIZE];
+} string_t;
+
+/**
+ * @brief Creates a string on the stack containing length and the pointer
+ * @param srcDest Result where the string will be saved
+ * @param string String input to create
+ */
+static void create_string(string_t *const srcDest, const char *const string) {
+  const size_t length = strlen(string);
+  memcpy(srcDest->string, string, length);
+  srcDest->string[length] = '\0';
+  srcDest->length = length;
+}
+
+/**
+ * @brief Gets the correct role string based on the type
+ * @param role Numeric representation of the role type
+ * @param dest Where the string will be stored
+ * @returns The status of the operation
+ */
+static size_t get_role_type(const role_type_t role, char *const dest) {
+  string_t string = {};
+  switch (role) {
+  default:
+    return ERR_UNRECOVERABLE;
+  case role_type_user:
+    create_string(&string, "user");
+    break;
+  case role_type_assistant:
+    create_string(&string, "assistant");
+    break;
+  case role_type_developer:
+    create_string(&string, "developer");
+  }
+  memcpy(dest, string.string, string.length);
+  return ERR_RECOVERABLE;
+}
 
 /**
  * @brief Get the entire chat context from the current session
@@ -78,18 +115,28 @@ static size_t write_func(void *const ptr, size_t size, size_t nmemb,
 /**
  * @brief Adds context based on the provided input.
  * @param input The input string to process.
- * @param is_user A boolean indicating if the context is user-specific.
+ * @param role_type Role of the current message
  * @return A static constant integer representing the result of the operation.
  */
-size_t add_context(const char *const input, bool is_user) {
+size_t add_context(const char *const input, role_type_t role_type) {
   if (context_size >= MAX_CONTEXT_ARRAY_SIZE) {
     fprintf(stderr, "Context window limit has been exceeded\n");
     return ERR_UNRECOVERABLE;
   }
 
+  char role[MAX_BUFF_SIZE] = {};
+  if (get_role_type(role_type, role) == ERR_UNRECOVERABLE) {
+    fprintf(stderr, "Role failed to resolve\n");
+    return ERR_UNRECOVERABLE;
+  }
+
   char temp[MAX_BUFF_SIZE] = {};
-  snprintf(temp, MAX_BUFF_SIZE, "{\"role\":\"%s\",\"content\":\"%s\"}",
-           is_user == true ? ROLE_USER : ROLE_ASSISTANT, input);
+  const char template[] = "{\"role\":\"%s\",\"content\":\"%s\"}";
+  if (snprintf(temp, MAX_BUFF_SIZE, template, role, input) < 0) {
+    fprintf(stderr, "Input could not be added to context\n");
+    return ERR_UNRECOVERABLE;
+  }
+
   memcpy(context[context_size], temp, MAX_BUFF_SIZE);
   context[context_size++][MAX_BUFF_SIZE - 1] = '\0';
   return ERR_RECOVERABLE;
@@ -276,6 +323,9 @@ cleanup:
     curl_easy_cleanup(pCurl);
   }
 
-  pthread_detach(thread);
+  if (pthread_detach(thread) != 0) {
+    fprintf(stderr, "Thread could not be detached\n");
+    status = ERR_UNRECOVERABLE;
+  }
   return status;
 }
