@@ -227,12 +227,14 @@ size_t get_prompt_response(const char *const api_key, const char *const model,
   pthread_t thread;
   if (pthread_create(&thread, nullptr, on_request_processing, &info) != 0) {
     fprintf(stderr, "Failed to create new thread\n");
+    status = ERR_UNRECOVERABLE;
     goto cleanup;
   }
 
   ssize_t timestamp = date_now();
   if (timestamp < 0) {
     fprintf(stderr, "Timestamp could not be fetched outside while\n");
+    status = ERR_UNRECOVERABLE;
     goto cleanup;
   }
 
@@ -240,6 +242,7 @@ size_t get_prompt_response(const char *const api_key, const char *const model,
     const ssize_t currentTime = date_now();
     if (currentTime < 0) {
       fprintf(stderr, "Timestamp failed while request was pending\n");
+      status = ERR_UNRECOVERABLE;
       goto cleanup;
     }
 
@@ -247,6 +250,7 @@ size_t get_prompt_response(const char *const api_key, const char *const model,
       printf(".");
       if (fflush(stdout) != 0) {
         fprintf(stderr, "Failed to write unwritten bytes to stdout\n");
+        status = ERR_UNRECOVERABLE;
         goto cleanup;
       }
       timestamp = currentTime + 1;
@@ -270,5 +274,7 @@ cleanup:
   if (pCurl != nullptr) {
     curl_easy_cleanup(pCurl);
   }
+
+  pthread_detach(thread);
   return status;
 }
