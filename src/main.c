@@ -157,9 +157,14 @@ static size_t process_string_command(const char *const src,
                                      const char *const model) {
   char command[MAX_BUFF_SIZE];
   if (get_executable_command(src, command) == ERR_RECOVERABLE) {
-    term_string_t string;
-    merge_strings(&string, 4, "> ", model,
-                  " would like to execute (Y/n): ", command);
+    term_string_t string = {.length = 0};
+    const char *const condition = " would like to execute (Y/n): ";
+    if (merge_strings(&string, 4, "> ", model, condition, command) ==
+        ERR_UNRECOVERABLE) {
+      fprintf(stderr, "Failed to merge strings to show executable command\n");
+      return ERR_UNRECOVERABLE;
+    }
+
     term_print_color(string, term_color_red);
 
     // Process the next keypress without needing to press enter
