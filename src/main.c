@@ -33,11 +33,6 @@ typedef enum : uint8_t {
   term_flag_interactive
 } term_flag_t;
 
-typedef enum : uint8_t {
-  term_code_newline = 10,
-  term_code_space = 32
-} term_code_t;
-
 static volatile bool g_keep_alive = true;
 
 /**

@@ -5,12 +5,19 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef enum : uint8_t {
-  term_color_none,
-  term_color_green,
-  term_color_red,
+  term_color_red = 31,
+  term_color_green = 32,
+  term_color_none = 37,
 } term_color_t;
+
+typedef enum : uint8_t {
+  term_code_newline = 10,
+  term_code_space = 32,
+  term_code_backslash = 92
+} term_code_t;
 
 typedef struct {
   size_t length;
@@ -51,23 +58,31 @@ cleanup:
 }
 
 /**
+ * @brief Prints a string char by char
+ * @param src Source string to print
+ * @param len Length of the string
+ * @param color Color of the string to print out
+ */
+static void custom_print_string(const char *const src, const size_t len,
+                                const term_color_t color) {
+  for (size_t i = 0; i < len; i++) {
+    if (src[i] == term_code_backslash && ++i <= len && src[i] == 'n') {
+      printf("\n");
+      continue;
+    }
+    printf("\033[%dm%c\033[0m", color, src[i]);
+  }
+  printf("\n");
+}
+
+/**
  * @brief Prints a text in a predefined color to stdout
  * @param src Text to print
  * @param color Color to use
  */
-static void term_print_color_char(const char *const src, term_color_t color) {
-  switch (color) {
-  default:
-  case term_color_none:
-    printf("%s\n", src);
-    break;
-  case term_color_green:
-    printf("\033[32m%s\033[0m\n", src);
-    break;
-  case term_color_red:
-    fprintf(stderr, "\033[31m%s\033[0m\n", src);
-    break;
-  }
+static void term_print_color_char(const char *const src,
+                                  const term_color_t color) {
+  custom_print_string(src, strlen(src), color);
 }
 
 /**
@@ -76,19 +91,8 @@ static void term_print_color_char(const char *const src, term_color_t color) {
  * @param color Color to use
  */
 static void term_print_color_string(const term_string_t src,
-                                    term_color_t color) {
-  switch (color) {
-  default:
-  case term_color_none:
-    printf("%s\n", src.text);
-    break;
-  case term_color_green:
-    printf("\033[32m%s\033[0m\n", src.text);
-    break;
-  case term_color_red:
-    fprintf(stderr, "\033[31m%s\033[0m\n", src.text);
-    break;
-  }
+                                    const term_color_t color) {
+  custom_print_string(src.text, src.length, color);
 }
 
 #endif
